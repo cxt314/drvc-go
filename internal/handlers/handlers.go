@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/cxt314/drvc-go/pkg/config"
-	"github.com/cxt314/drvc-go/pkg/models"
-	"github.com/cxt314/drvc-go/pkg/render"
+	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/models"
+	"github.com/cxt314/drvc-go/internal/render"
 )
 
 // Repo is the repository used by the handlers

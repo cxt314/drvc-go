@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/cxt314/drvc-go/pkg/config"
-	"github.com/cxt314/drvc-go/pkg/handlers"
-	"github.com/cxt314/drvc-go/pkg/render"
+	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/handlers"
+	"github.com/cxt314/drvc-go/internal/render"
 )
 
 const portNumber = ":8080"

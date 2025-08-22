@@ -16,7 +16,7 @@
     {{block "css" .}}
     {{ end }}
 
-    <title>Document</title>
+    <title>{{block "title" .}}{{ end }}</title>
   </head>
   <body>
     <nav class="navbar navbar-expand-md fixed-top navbar-dark bg-dark">
@@ -42,6 +42,10 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Vehicles</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Members</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Mileage Logs</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Billing</a></li>
             <!--<li class="nav-item">
               <a class="nav-link disabled" aria-disabled="true">Disabled</a>
             </li>-->
@@ -82,11 +86,12 @@
     <main class="container">
       <div class="bg-body-tertiary p-5 mt-4 rounded">
         {{block "content" .}}
+
         {{ end }}
 
-     </div>
+      </div>
 
-     <div class="container">
+    <div class="container">
       <footer
         class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top"
       >

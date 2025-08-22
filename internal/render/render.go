@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/cxt314/drvc-go/pkg/config"
-	"github.com/cxt314/drvc-go/pkg/models"
+	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/models"
 )
 
 var app *config.AppConfig

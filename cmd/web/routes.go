@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/cxt314/drvc-go/pkg/config"
-	"github.com/cxt314/drvc-go/pkg/handlers"
+	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
