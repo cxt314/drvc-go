@@ -1,12 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/cxt314/drvc-go/internal/config"
@@ -29,6 +32,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	dbConn, err := sql.Open("pgx", "host=localhost port=5432 dbname=postgres user=postgres password=postgres")
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Unable to conenct: %v\n", err))
+	}
+	defer dbConn.Close()
+
+	log.Println("Connected to database!")
+	err = dbConn.Ping()
+	if err != nil {
+		log.Fatal("Cannot ping database")
+	}
+	log.Println("pinged database")
+	
 
 	fmt.Printf("Starting application on port %s\n", portNumber)
 
