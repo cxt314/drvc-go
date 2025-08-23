@@ -8,7 +8,9 @@
 
   	"waitFor": "onCreateCommand",
 	"updateContentCommand": "",
-	"postCreateCommand": "cp .env.example .env",
+	"postCreateCommand": "go install -v github.com/gobuffalo/pop/soda@latest",
+
+	//"postCreateCommand": "cp .env.example .env",
 	"postAttachCommand": {
 		"server": ""
 	},
