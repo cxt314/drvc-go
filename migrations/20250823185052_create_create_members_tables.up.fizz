@@ -1,0 +1,12 @@
+create_table("members") {
+    t.Column("id", "integer", {primary:true})
+    t.Column("name", "string", {})
+    t.Column("email", "string", {})
+}
+
+create_table("member_aliases") {
+    t.Column("id", "integer", {primary:true})
+    t.Column("member_id", "integer", {})
+    t.Column("name", "string", {})
+    t.ForeignKey("member_id", {"members": ["id"]}, {"on_delete": "cascade"})
+}

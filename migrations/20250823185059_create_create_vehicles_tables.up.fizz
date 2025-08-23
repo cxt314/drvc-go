@@ -1,0 +1,12 @@
+create_table("vehicles") {
+    t.Column("id", "integer", {primary:true})
+    t.Column("name", "string", {})
+    t.Column("year", "integer", {})
+    t.Column("make", "string", {})
+    t.Column("model", "string", {})
+    t.Column("fuel_type", "string", {"size": 2})
+    t.Column("purchase_price", "decimal", {"default": 0, "precision": 2})
+    t.Column("purchase_date", "date", {"null": true})
+    t.Column("vin", "string", {"default": ""})
+    t.Column("license_plate", "string", {"default": ""})
+}

@@ -1,0 +1,2 @@
+drop_table("member_aliases")
+drop_table("members")
