@@ -11,6 +11,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 	"github.com/go-chi/chi/v5"
@@ -47,10 +48,10 @@ func getRoutes() http.Handler {
 	app.TemplateCache = tc
 	app.UseCache = true
 
-	render.NewTemplates(&app)
-
 	repo := NewRepo(&app)
 	NewHandlers(repo)
+	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	mux := chi.NewRouter()
 

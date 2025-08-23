@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/handlers"
+	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
@@ -18,6 +20,8 @@ const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 // main is hte main application function
 func main() {
@@ -45,6 +49,12 @@ func run() error {
 	// chages this to true when in production
 	app.InProduction = false
 
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
 	// initialize sessions
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
@@ -63,10 +73,10 @@ func run() error {
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	render.NewTemplates(&app)
-
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
+	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	return nil
 }
