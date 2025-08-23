@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/handlers"
+	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
 
@@ -19,6 +21,9 @@ var session *scs.SessionManager
 
 // main is hte main application function
 func main() {
+	// What is going to be stored in the session
+	gob.Register(models.Reservation{})
+
 	// chages this to true when in production
 	app.InProduction = false
 
