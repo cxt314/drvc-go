@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/forms"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
@@ -34,7 +36,7 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 
 	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
 
-	render.RenderTemplate(w, "home.page.tmpl", &models.TemplateData{})
+	render.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
 // About is the about page handler
@@ -45,5 +47,42 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip")
 	stringMap["remote_ip"] = remoteIP
 
-	render.RenderTemplate(w, "about.page.tmpl", &models.TemplateData{StringMap: stringMap})
+	render.RenderTemplate(w, r, "about.page.tmpl", &models.TemplateData{StringMap: stringMap})
+}
+
+// Reservation renders the make a reservation page and displays form
+func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// PostReservation is a sample function for how to handle form parsing & validation
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	reservation := models.Reservation{
+		FirstName: r.Form.Get("first_name"),
+		LastName:  r.Form.Get("last_name"),
+		Phone:     r.Form.Get("phone"),
+		Email:     r.Form.Get("email"),
+	}
+
+	form := forms.New(r.PostForm)
+
+	form.Has("first_name", r)
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["reservation"] = reservation
+
+		render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+	}
 }
