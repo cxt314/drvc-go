@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/gob"
 	"fmt"
 	"log"
@@ -9,10 +8,9 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-
 	"github.com/alexedwards/scs/v2"
 	"github.com/cxt314/drvc-go/internal/config"
+	"github.com/cxt314/drvc-go/internal/driver"
 	"github.com/cxt314/drvc-go/internal/handlers"
 	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
@@ -28,24 +26,11 @@ var errorLog *log.Logger
 
 // main is hte main application function
 func main() {
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	dbConn, err := sql.Open("pgx", "host=localhost port=5432 dbname=postgres user=postgres password=postgres")
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Unable to conenct: %v\n", err))
-	}
-	defer dbConn.Close()
-
-	log.Println("Connected to database!")
-	err = dbConn.Ping()
-	if err != nil {
-		log.Fatal("Cannot ping database")
-	}
-	log.Println("pinged database")
-	
+	defer db.SQL.Close()
 
 	fmt.Printf("Starting application on port %s\n", portNumber)
 
@@ -59,7 +44,7 @@ func main() {
 
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	// What is going to be stored in the session
 	gob.Register(models.Reservation{})
 
@@ -81,19 +66,27 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=postgres user=postgres password=postgres")
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+	log.Println("Connected to database!")
+
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 	render.NewTemplates(&app)
 	helpers.NewHelpers(&app)
 
-	return nil
+	return db, nil
 }
