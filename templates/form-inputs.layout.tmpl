@@ -1,0 +1,11 @@
+{{define "formInputText"}}
+    <div class="form-group">
+        <label for="{{ .Name }}">{{ .Label }}:</label>
+        {{with .Form.Errors.Get "name"}}
+            <label class="text-danger">{{.}}</label>
+        {{end}}
+        <input class="form-control {{with .Form.Errors.Get "name"}} is-invalid {{end}}"
+                id="name" autocomplete="off" type='text'
+                name='name' value="{{.Value}}" required>
+    </div>
+{{end}}

@@ -47,6 +47,27 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "about.page.tmpl", &models.TemplateData{})
 }
 
+func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
+	var emptyModel models.Vehicle
+	data := make(map[string]interface{})
+	data["vehicle"] = emptyModel
+
+	render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+	})
+}
+
+func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+}
+
 // sample form filling
 
 // Reservation renders the make a reservation page and displays form
