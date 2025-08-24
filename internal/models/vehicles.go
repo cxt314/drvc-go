@@ -6,7 +6,7 @@ import "time"
 var FuelTypes = [...]string{"Hybrid", "Electric", "Gasoline", "Diesel"}
 
 // Vehicles is the vehicle model
-type Vehicles struct {
+type Vehicle struct {
 	ID            int
 	Name          string
 	Year          int

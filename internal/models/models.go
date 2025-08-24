@@ -12,8 +12,8 @@ type Reservation struct {
 	Phone     string
 }
 
-// Users is the user model
-type Users struct {
+// User is the user model
+type User struct {
 	ID          int
 	FirstName   string
 	LastName    string

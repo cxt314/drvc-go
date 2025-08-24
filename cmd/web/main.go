@@ -46,7 +46,13 @@ func main() {
 
 func run() (*driver.DB, error) {
 	// What is going to be stored in the session
-	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(models.Member{})
+	gob.Register(models.MemberAlias{})
+	gob.Register(models.Vehicle{})
+	gob.Register(models.MileageLog{})
+	gob.Register(models.Trip{})
+	gob.Register(models.Rider{})
 
 	// chages this to true when in production
 	app.InProduction = false
@@ -85,7 +91,7 @@ func run() (*driver.DB, error) {
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 	helpers.NewHelpers(&app)
 
 	return db, nil

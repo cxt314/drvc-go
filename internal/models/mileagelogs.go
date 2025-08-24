@@ -2,11 +2,11 @@ package models
 
 import "time"
 
-// MileageLogs describes the mileage log model
+// MileageLog describes the mileage log model
 // Each MileageLog is made up of multiple Trips
-type MileageLogs struct {
+type MileageLog struct {
 	ID            int
-	Vehicle       Vehicles
+	Vehicle       Vehicle
 	Name          string
 	Year          int
 	Month         int
@@ -16,11 +16,11 @@ type MileageLogs struct {
 	UpdatedAt     time.Time
 }
 
-// Trips describes the trip model
+// Trip describes the trip model
 // Each trip can have multiple DRVC Members as riders
-type Trips struct {
+type Trip struct {
 	ID             int
-	MileageLog     MileageLogs
+	MileageLog     MileageLog
 	TripDate       time.Time
 	StartMileage   int
 	EndMileage     int
@@ -31,12 +31,12 @@ type Trips struct {
 	UpdatedAt      time.Time
 }
 
-// Riders describes the riders model
+// Rider describes the rider model
 // This model associates a DRVC member with a trip
-type Riders struct {
+type Rider struct {
 	ID        int
-	Trip      Trips
-	Member    Members
+	Trip      Trip
+	Member    Member
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
