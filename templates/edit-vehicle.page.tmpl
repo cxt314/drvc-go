@@ -4,12 +4,12 @@
 
 {{define "content"}}
     <div class="container">
+        {{ $v := index .Data "vehicle" }}
         <div class="row">
             <div class="col">
-                <h1 class="mt-3">Create Vehicle</h1>
+                <h1 class="mt-3">{{if $v}}Update {{$v.Name}} {{else}}Create Vehicle{{end}}</h1>
 
-                {{ $v := index .Data "vehicle" }}
-                <form method="post" action="" class="" novalidate>
+                <form method="post" action="{{if $v}}/vehicles/{{$v.ID}} {{else}}/new-vehicle {{end}}" class="" novalidate>
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
                     <div class="form-group mt-3">
@@ -88,7 +88,7 @@
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
                                 <input class="form-control {{with .Form.Errors.Get "purchase_date"}} is-invalid {{end}}" 
-                                        id="purchase_date" autocomplete="off" type='date'
+                                        id="purchase_date" type='text'
                                         name='purchase_date' value="{{$v.PurchaseDate}}" >
                             </div>
                         </div>
@@ -125,4 +125,13 @@
         </div>
 
     </div>
+{{end}}
+
+{{define "js"}}
+<script>
+    const elem = document.querySelector('input[name="purchase_date"]');
+    const datePicker = new Datepicker(elem, {
+        format: "yyyy-mm-dd",
+    });
+</script>
 {{end}}

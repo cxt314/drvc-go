@@ -7,4 +7,5 @@ type DatabaseRepo interface {
 
 	InsertVehicle(v models.Vehicle) error
 	AllVehicles() ([]models.Vehicle, error)
+	GetVehicleByID(id int) (models.Vehicle, error)
 }

@@ -7,13 +7,15 @@ import (
 	"github.com/cxt314/drvc-go/internal/models"
 )
 
+const contextTimeout = 3 * time.Second
+
 func (m *postgresDBRepo) AllUsers() bool {
 	return true
 }
 
 // InsertVehicle inserts a Vehicle into the database
 func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	stmt := `INSERT INTO vehicles (name, year, make, model, fuel_type,
@@ -42,7 +44,11 @@ func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
 	return nil
 }
 
+// AllVehicles returns a slice of all vehicles in database
 func (m *postgresDBRepo) AllVehicles() ([]models.Vehicle, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
 	q := `SELECT id,
 				name,
 				year,
@@ -58,7 +64,7 @@ func (m *postgresDBRepo) AllVehicles() ([]models.Vehicle, error) {
 		FROM vehicles`
 
 	// execute our DB query
-	rows, err := m.DB.Query(q)
+	rows, err := m.DB.QueryContext(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -84,4 +90,40 @@ func (m *postgresDBRepo) AllVehicles() ([]models.Vehicle, error) {
 	}
 
 	return vehicles, nil
+}
+
+// GetVehicleByID returns one vehicle from a given id
+func (m *postgresDBRepo) GetVehicleByID(id int) (models.Vehicle, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	var v models.Vehicle
+
+	q := `SELECT id,
+				name,
+				year,
+				make,
+				model,
+				fuel_type,
+				purchase_price,
+				purchase_date,
+				vin,
+				license_plate,
+				created_at,
+				updated_at
+		FROM vehicles
+		WHERE id = $1`
+
+	// execute our DB query
+	row := m.DB.QueryRowContext(ctx, q, id)
+
+	// scan db row into vehicle model
+	err := row.Scan(&v.ID, &v.Name, &v.Year, &v.Make, &v.Model, &v.FuelType,
+		&v.PurchasePrice, &v.PurchaseDate, &v.Vin, &v.LicensePlate,
+		&v.CreatedAt, &v.UpdatedAt)
+	if err != nil {
+		return v, err
+	}
+
+	return v, nil
 }

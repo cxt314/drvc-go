@@ -24,12 +24,15 @@ Vehicles
             <div class="col">
                 {{ $vehicles := index .Data "vehicles" }}
                 {{ range $vehicles }}
-                <div class="card">
-                    <h4>{{ .Name }}</h4>
-                    <p>{{ .Make }} {{ .Model }} {{ .Year }} </p>
-                </div>
+                <a href="/vehicles/{{ .ID }}">
+                    <div class="card">
+                        <h4>{{ .Name }}</h4>
+                        <p>{{ .Make }} {{ .Model }} {{ .Year }} </p>
+                    </div>
+                </a>
                 {{ end }}
             </div>
         </div>
     </div>
 {{end}}
+
