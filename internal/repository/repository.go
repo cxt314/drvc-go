@@ -6,4 +6,5 @@ type DatabaseRepo interface {
 	AllUsers() bool
 
 	InsertVehicle(v models.Vehicle) error
+	AllVehicles() ([]models.Vehicle, error)
 }

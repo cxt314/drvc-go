@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/driver"
@@ -48,8 +49,17 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
+	vehicles, err := m.DB.AllVehicles()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data := make(map[string]interface{})
+	data["vehicles"] = vehicles
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	render.Template(w, r, "vehicle-list.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
@@ -64,8 +74,50 @@ func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	form := forms.New(r.PostForm)
+
+	v := models.Vehicle{
+		Name:         r.Form.Get("name"),
+		Make:         r.Form.Get("make"),
+		Model:        r.Form.Get("model"),
+		FuelType:     r.Form.Get("fuel_type"),
+		Vin:          r.Form.Get("vin"),
+		LicensePlate: r.Form.Get("license_plate"),
+	}
+	v.Year, err = strconv.Atoi(r.Form.Get("year"))
+	if err != nil {
+		m.App.InfoLog.Println("Could not convert year to int,", r.Form.Get("year"))
+	}
+
+	//v.PurchaseDate
+	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
+
+	// do form validation checks
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["vehicle"] = v
+
+		render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	err = m.DB.InsertVehicle(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/vehicles", http.StatusSeeOther)
 }
 
 // sample form filling

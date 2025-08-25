@@ -1,0 +1,35 @@
+{{template "base" .}}
+
+{{define "title"}}
+Vehicles
+{{end}}
+
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Vehicles</h1>
+                
+
+            </div>
+            <div class="col-3">
+                <form action="/new-vehicle" method="GET">
+                    <button class="btn btn-primary" name="send" value="new">
+                        Create New Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ $vehicles := index .Data "vehicles" }}
+                {{ range $vehicles }}
+                <div class="card">
+                    <h4>{{ .Name }}</h4>
+                    <p>{{ .Make }} {{ .Model }} {{ .Year }} </p>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+{{end}}
