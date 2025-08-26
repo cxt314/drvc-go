@@ -204,6 +204,7 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 			vin = $8,
 			license_plate = $9,
 			updated_at = $10
+		WHERE id =  $11
 		`
 
 	_, err := m.DB.ExecContext(ctx, q,
@@ -217,6 +218,7 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 		v.Vin,
 		v.LicensePlate,
 		time.Now(),
+		v.ID,
 	)
 
 	if err != nil {

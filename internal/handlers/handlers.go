@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/driver"
@@ -15,9 +15,6 @@ import (
 	"github.com/cxt314/drvc-go/internal/repository"
 	"github.com/cxt314/drvc-go/internal/repository/dbrepo"
 )
-
-// date_layout is the format we expect dates to be sent in as
-const date_layout = "2006-01-02" // 01/02 03:04:05PM '06 -0700
 
 // Repo is the repository used by the handlers
 var Repo *Repository
@@ -70,13 +67,6 @@ func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
 
 // VehicleCreate displays the page to create a new vehicle
 func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
-	//var emptyModel models.Vehicle
-	// for empty model, set purchase date to today
-	//emptyModel.PurchaseDate = time.Now()
-
-	//data := make(map[string]interface{})
-	//data["vehicle"] = emptyModel
-
 	render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
 		//Data: data,
@@ -85,34 +75,15 @@ func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
 
 // VehicleCreatePost processes the POST request for creating a new vehicle
 func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	// parse received form values into vehicle object
+	v := models.Vehicle{}
+	err := helpers.ParseFormToVehicle(r, &v)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
 
 	form := forms.New(r.PostForm)
-
-	v := models.Vehicle{
-		Name:         r.Form.Get("name"),
-		Make:         r.Form.Get("make"),
-		Model:        r.Form.Get("model"),
-		FuelType:     r.Form.Get("fuel_type"),
-		Vin:          r.Form.Get("vin"),
-		LicensePlate: r.Form.Get("license_plate"),
-	}
-	v.Year, err = strconv.Atoi(r.Form.Get("year"))
-	if err != nil {
-		m.App.InfoLog.Println("Could not convert year to int,", r.Form.Get("year"))
-	}
-
-	pd := r.Form.Get("purchase_date")
-	v.PurchaseDate, err = time.Parse(date_layout, pd)
-	if err != nil {
-		helpers.ServerError(w, err)
-	}
-	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
-
 	// do form validation checks
 
 	if !form.Valid() {
@@ -135,6 +106,7 @@ func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/vehicles", http.StatusSeeOther)
 }
 
+// VehicleEdit shows the edit form for a vehicle by id
 func (m *Repository) VehicleEdit(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
 	id, err := strconv.Atoi(exploded[2])
@@ -159,7 +131,62 @@ func (m *Repository) VehicleEdit(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// VehicleEditPost processes the POST request for editing a vehicle by id
 func (m *Repository) VehicleEditPost(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// get vehicle from database
+	v, err := m.DB.GetVehicleByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// parse form into fetched vehicle
+	err = helpers.ParseFormToVehicle(r, &v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	// do form validation checks
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["vehicle"] = v
+
+		render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	err = m.DB.UpdateVehicle(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Updated vehicle successfully")
+	http.Redirect(w, r, fmt.Sprintf("/vehicles/%d", id), http.StatusSeeOther)
+}
+
+// VehicleDelete deletes the vehicle with the given id
+func (m *Repository) VehicleDelete(w http.ResponseWriter, r *http.Request) {
+	// exploded := strings.Split(r.RequestURI, "/")
+	// id, err := strconv.Atoi(exploded[2])
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
+
 	render.Template(w, r, "vehicle-list.page.tmpl", &models.TemplateData{})
 }
 

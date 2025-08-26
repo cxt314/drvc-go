@@ -26,6 +26,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/new-vehicle", handlers.Repo.VehicleCreatePost)
 	mux.Get("/vehicles/{id}", handlers.Repo.VehicleEdit)
 	mux.Post("/vehicles/{id}", handlers.Repo.VehicleEditPost)
+	mux.Get("/vehicles/{id}/delete", handlers.Repo.VehicleDelete)
 
 	// sample reservation routes
 	mux.Get("/make-reservation", handlers.Repo.Reservation)
