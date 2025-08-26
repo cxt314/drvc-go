@@ -3,7 +3,7 @@ package repository
 import "github.com/cxt314/drvc-go/internal/models"
 
 type DatabaseRepo interface {
-	AllUsers() bool
+	AllUsers() ([]models.User, error)
 	UpdateUser(v models.User) error
 
 	InsertVehicle(v models.Vehicle) error
