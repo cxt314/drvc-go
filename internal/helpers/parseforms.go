@@ -31,7 +31,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	}
 
 	pd := r.Form.Get("purchase_date")
-	v.PurchaseDate, err = time.Parse(date_layout, pd)
+	*v.PurchaseDate, err = time.Parse(date_layout, pd)
 	if err != nil {
 		return err
 	}

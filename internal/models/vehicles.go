@@ -14,9 +14,12 @@ type Vehicle struct {
 	Model         string
 	FuelType      string
 	PurchasePrice USD
-	PurchaseDate  time.Time
+	PurchaseDate  *time.Time
 	Vin           string
 	LicensePlate  string
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Active        bool
+	SalePrice     USD
+	SaleDate      *time.Time
 }

@@ -1,0 +1,3 @@
+drop_column("vehicles", "is_active")
+drop_column("vehicles", "sale_price")
+drop_column("vehicles", "sale_date")

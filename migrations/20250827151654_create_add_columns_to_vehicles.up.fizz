@@ -1,0 +1,3 @@
+add_column("vehicles", "is_active", "bool", {"default": false})
+add_column("vehicles", "sale_price", "integer", {"default": 0})
+add_column("vehicles", "sale_date", "date", {"null": true})
