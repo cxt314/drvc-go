@@ -8,6 +8,7 @@ type DatabaseRepo interface {
 
 	InsertVehicle(v models.Vehicle) error
 	AllVehicles() ([]models.Vehicle, error)
+	GetVehicleByActive(active bool) ([]models.Vehicle, error)
 	GetVehicleByID(id int) (models.Vehicle, error)
 	UpdateVehicle(v models.Vehicle) error
 	DeleteVehicle(id int) error

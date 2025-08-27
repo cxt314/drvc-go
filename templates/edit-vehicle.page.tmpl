@@ -114,6 +114,30 @@
                                 name='license_plate' value="{{$v.LicensePlate}}" >
                     </div>
 
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="sale_price">Sale Price:</label>
+                                {{with .Form.Errors.Get "sale_price"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "sale_price"}} is-invalid {{end}}" 
+                                        id="sale_price" autocomplete="off" type='text'
+                                        name='sale_price' value="{{$v.SalePrice}}" >
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label for="sale_date">Sale Date:</label>
+                                {{with .Form.Errors.Get "sale_date"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "sale_date"}} is-invalid {{end}}" 
+                                        id="sale_date" type='text'
+                                        name='sale_date' value="{{if $v.SaleDate }}{{$v.SaleDate}}{{end}} " >
+                            </div>
+                        </div>
+                    </div>
 
 
                     <hr>
@@ -133,5 +157,11 @@
     const datePicker = new Datepicker(elem, {
         format: "yyyy-mm-dd",
     });
+
+    const elemSale = document.querySelector('input[name="sale_date"]');
+    const datePickerSale = new Datepicker(elemSale, {
+        format: "yyyy-mm-dd",
+    });
 </script>
+
 {{end}}

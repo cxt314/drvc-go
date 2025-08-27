@@ -69,7 +69,6 @@ func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
-		//Data: data,
 	})
 }
 

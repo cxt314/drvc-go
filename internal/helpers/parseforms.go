@@ -12,12 +12,12 @@ import (
 const date_layout = "2006-01-02" // 01/02 03:04:05PM '06 -0700
 
 func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
-	//v := models.Vehicle{}
 	err := r.ParseForm()
 	if err != nil {
 		return err
 	}
 
+	// parse string fields
 	v.Name = r.Form.Get("name")
 	v.Make = r.Form.Get("make")
 	v.Model = r.Form.Get("model")
@@ -25,17 +25,27 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.Vin = r.Form.Get("vin")
 	v.LicensePlate = r.Form.Get("license_plate")
 
+	// parse year str to int
 	v.Year, err = strconv.Atoi(r.Form.Get("year"))
 	if err != nil {
 		return err
 	}
 
-	pd := r.Form.Get("purchase_date")
-	*v.PurchaseDate, err = time.Parse(date_layout, pd)
+	// parse purchase date string to *time.Time
+	tempPD, err := time.Parse(date_layout, r.Form.Get("purchase_date"))
 	if err != nil {
 		return err
 	}
+	v.PurchaseDate = &tempPD
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
+
+	// parse sale date string to *time.Time
+	tempSD, err := time.Parse(date_layout, r.Form.Get("sale_date"))
+	if err != nil {
+		return err
+	}
+	v.SaleDate = &tempSD
+	v.SalePrice = models.StrToUSD(r.Form.Get("sale_price"))
 
 	return nil
 }
