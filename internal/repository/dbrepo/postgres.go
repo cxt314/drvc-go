@@ -235,6 +235,30 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 	return nil
 }
 
+// UpdateVehicleActiveByID updates the active status of a vehicle by id
+func (m *postgresDBRepo) UpdateVehicleActiveByID(id int, active bool) error {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := `UPDATE vehicles SET
+			is_active = $1,
+			updated_at = $2
+		WHERE id =  $3
+		`
+
+	_, err := m.DB.ExecContext(ctx, q,
+		active,
+		time.Now(),
+		id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DeleteVehicle deletes one vehicle by id
 // We should almost never actually delete a vehicle
 // because it will be referenced by a lot of mileage logs.

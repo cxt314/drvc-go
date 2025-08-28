@@ -141,7 +141,21 @@
 
 
                     <hr>
-                    <input type="submit" class="btn btn-primary" value="Save">
+                    <div class="row">
+                        <div class="col">
+                            <input type="submit" class="btn btn-primary" value="Save">
+                        </div>
+                        <div class="col-8"></div>
+                        <div class="col">
+                            {{ if $v }}
+                            <a href="/vehicles/{{$v.ID}}/deactivate">
+                                <button form="deactivate_vehicle" class="btn btn-secondary" name="deactivate" value="deactivate">
+                                    Deactivate Vehicle
+                                </button>
+                            </a>
+                            {{ end }}
+                        </div>
+                    </div> 
                 </form>
 
 

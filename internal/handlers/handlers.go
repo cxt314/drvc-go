@@ -177,7 +177,7 @@ func (m *Repository) VehicleEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/vehicles/%d", id), http.StatusSeeOther)
 }
 
-// VehicleDelete deletes the vehicle with the given id
+/*// VehicleDelete deletes the vehicle with the given id
 func (m *Repository) VehicleDelete(w http.ResponseWriter, r *http.Request) {
 	// exploded := strings.Split(r.RequestURI, "/")
 	// id, err := strconv.Atoi(exploded[2])
@@ -187,6 +187,26 @@ func (m *Repository) VehicleDelete(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	render.Template(w, r, "vehicle-list.page.tmpl", &models.TemplateData{})
+}*/
+
+// VehicleDeactivate updates a vehicle's active status by id
+func (m *Repository) VehicleDeactivate(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// update vehicle set is_active to false
+	err = m.DB.UpdateVehicleActiveByID(id, false)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// redirect to vehicles list after making vehicle inactive
+	http.Redirect(w, r, "/vehicles", http.StatusSeeOther)
 }
 
 // sample form filling

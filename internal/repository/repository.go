@@ -11,5 +11,6 @@ type DatabaseRepo interface {
 	GetVehicleByActive(active bool) ([]models.Vehicle, error)
 	GetVehicleByID(id int) (models.Vehicle, error)
 	UpdateVehicle(v models.Vehicle) error
+	UpdateVehicleActiveByID(id int, active bool) error
 	DeleteVehicle(id int) error
 }
