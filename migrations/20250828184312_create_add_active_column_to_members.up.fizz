@@ -1,0 +1,1 @@
+add_column("members", "is_active", "bool", {"default": true})

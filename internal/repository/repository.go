@@ -13,4 +13,12 @@ type DatabaseRepo interface {
 	UpdateVehicle(v models.Vehicle) error
 	UpdateVehicleActiveByID(id int, active bool) error
 	DeleteVehicle(id int) error
+
+	InsertMember(v models.Member) error
+	AllMembers() ([]models.Member, error)
+	GetMemberByActive(active bool) ([]models.Member, error)
+	GetMemberByID(id int) (models.Member, error)
+	UpdateMember(v models.Member) error
+	UpdateMemberActiveByID(id int, active bool) error
+	DeleteMember(id int) error
 }
