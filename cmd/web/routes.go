@@ -21,6 +21,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
 
+	// vehicles handlers
 	mux.Get("/vehicles", handlers.Repo.VehicleList)
 	mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
 	mux.Post("/new-vehicle", handlers.Repo.VehicleCreatePost)
@@ -28,6 +29,15 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/vehicles/{id}", handlers.Repo.VehicleEditPost)
 	//mux.Get("/vehicles/{id}/delete", handlers.Repo.VehicleDelete)
 	mux.Get("/vehicles/{id}/deactivate", handlers.Repo.VehicleDeactivate)
+
+	// members handlers
+	mux.Get("/members", handlers.Repo.MemberList)
+	mux.Get("/new-member", handlers.Repo.MemberCreate)
+	mux.Post("/new-member", handlers.Repo.MemberCreatePost)
+	mux.Get("/members/{id}", handlers.Repo.MemberEdit)
+	mux.Post("/members/{id}", handlers.Repo.MemberEditPost)
+	//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
+	mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
 
 	// sample reservation routes
 	mux.Get("/make-reservation", handlers.Repo.Reservation)

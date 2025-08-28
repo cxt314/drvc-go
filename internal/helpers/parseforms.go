@@ -49,3 +49,18 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 
 	return nil
 }
+
+func ParseFormToMember(r *http.Request, v *models.Member) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	// parse string fields
+	v.Name = r.Form.Get("name")
+	v.Email = r.Form.Get("email")
+
+	// parse member aliases
+
+	return nil
+}
