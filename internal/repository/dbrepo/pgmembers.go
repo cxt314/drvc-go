@@ -10,7 +10,7 @@ import (
 )
 
 // memberCols lists the columns in the members table EXCEPT "id"
-const memberCols = `name, email
+const memberCols = `name, email,
 				created_at, updated_at`
 
 // InsertMember inserts a Member into the database

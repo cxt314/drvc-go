@@ -1,0 +1,38 @@
+{{template "base" .}}
+
+{{define "title"}}
+Members
+{{end}}
+
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Members</h1>
+                
+
+            </div>
+            <div class="col-3">
+                <form action="/new-member" method="GET">
+                    <button class="btn btn-primary" name="send" value="new">
+                        Create New Member
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ $members := index .Data "members" }}
+                {{ range $members }}
+                <a href="/members/{{ .ID }}">
+                    <div class="card">
+                        <h4>{{ .Name }}</h4>
+                        <p>{{ .Email }} </p>
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+{{end}}
+
