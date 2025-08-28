@@ -52,7 +52,7 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 // VehicleList displays a list of all vehicles
 func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
-	vehicles, err := m.DB.AllVehicles()
+	vehicles, err := m.DB.GetVehicleByActive(true)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -177,18 +177,6 @@ func (m *Repository) VehicleEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/vehicles/%d", id), http.StatusSeeOther)
 }
 
-/*// VehicleDelete deletes the vehicle with the given id
-func (m *Repository) VehicleDelete(w http.ResponseWriter, r *http.Request) {
-	// exploded := strings.Split(r.RequestURI, "/")
-	// id, err := strconv.Atoi(exploded[2])
-	// if err != nil {
-	// 	helpers.ServerError(w, err)
-	// 	return
-	// }
-
-	render.Template(w, r, "vehicle-list.page.tmpl", &models.TemplateData{})
-}*/
-
 // VehicleDeactivate updates a vehicle's active status by id
 func (m *Repository) VehicleDeactivate(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
@@ -208,6 +196,18 @@ func (m *Repository) VehicleDeactivate(w http.ResponseWriter, r *http.Request) {
 	// redirect to vehicles list after making vehicle inactive
 	http.Redirect(w, r, "/vehicles", http.StatusSeeOther)
 }
+
+/*// VehicleDelete deletes the vehicle with the given id
+func (m *Repository) VehicleDelete(w http.ResponseWriter, r *http.Request) {
+	// exploded := strings.Split(r.RequestURI, "/")
+	// id, err := strconv.Atoi(exploded[2])
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
+
+	render.Template(w, r, "vehicle-list.page.tmpl", &models.TemplateData{})
+}*/
 
 // sample form filling
 // Reservation renders the make a reservation page and displays form
