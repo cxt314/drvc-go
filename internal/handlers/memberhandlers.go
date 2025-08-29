@@ -159,6 +159,13 @@ func (m *Repository) MemberDeactivate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/members", http.StatusSeeOther)
 }
 
+func (m *Repository) AddAlias(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	html := `<div class="col-3 mb-2"><input class="form-control" type="text" name="aliases"></div>`
+
+	w.Write([]byte(html))
+}
+
 /*// MemberDelete deletes the member with the given id
 func (m *Repository) MemberDelete(w http.ResponseWriter, r *http.Request) {
 	// exploded := strings.Split(r.RequestURI, "/")

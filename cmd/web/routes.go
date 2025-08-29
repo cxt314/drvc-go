@@ -38,6 +38,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/members/{id}", handlers.Repo.MemberEditPost)
 	//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
 	mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
+	mux.Get("/members/add-alias", handlers.Repo.AddAlias)
 
 	// sample reservation routes
 	mux.Get("/make-reservation", handlers.Repo.Reservation)
