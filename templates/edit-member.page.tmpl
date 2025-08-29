@@ -33,7 +33,15 @@
                     </div>
 
                     <!-- add member alias forms -->
-
+                    <hr>
+                    <h4>Aliases</h4>
+                    <div id="member-aliases" class="row">
+                        {{ range $v.Aliases }}
+                            <div class="col-3 mb-2"><input class="form-control" type="text" name="aliases" value="{{.Name}}"></div>
+                        {{ end }}
+                        <div class="col-3 mb-2"><input class="form-control" type="text" name="aliases"></div>
+                        <div class="col-3 mb-2"><button id="add-alias" type="button" class="btn btn-info" name="add-alias">Add Alias</button></div>
+                    </div>
                     <hr>
                     <div class="row">
                         <div class="col">

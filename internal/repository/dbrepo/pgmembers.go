@@ -13,7 +13,8 @@ import (
 const memberCols = `name, email, created_at, updated_at`
 const aliasCols = `member_id, name, created_at, updated_at`
 
-// InsertMember inserts a Member into the database
+// InsertMember inserts a Member into the database. This is wrapped in a transaction
+// due to needing to insert a member and possible member aliaes
 func (m *postgresDBRepo) InsertMember(v models.Member) error {
 	return runInTx(m.DB, func(tx *sql.Tx) error {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
@@ -36,7 +37,8 @@ func (m *postgresDBRepo) InsertMember(v models.Member) error {
 
 		// insert aliases into member_aliases table
 		for _, a := range v.Aliases {
-			stmt := fmt.Sprintf(`INSERT INTO member_aliases (%s)
+			err := insertMemberAliasesTx(tx, ctx, lastInsertId, a.Name)
+			/*stmt := fmt.Sprintf(`INSERT INTO member_aliases (%s)
 				VALUES ($1, $2, $3, $4)`,
 				aliasCols)
 
@@ -44,7 +46,7 @@ func (m *postgresDBRepo) InsertMember(v models.Member) error {
 				lastInsertId, a.Name,
 				time.Now(), time.Now(),
 			)
-
+			*/
 			if err != nil {
 				return err
 			}
@@ -53,6 +55,22 @@ func (m *postgresDBRepo) InsertMember(v models.Member) error {
 
 		return nil
 	})
+}
+
+func insertMemberAliasesTx(tx *sql.Tx, ctx context.Context, member_id int, alias string) error {
+	stmt := fmt.Sprintf(`INSERT INTO member_aliases (%s)
+				VALUES ($1, $2, $3, $4)`,
+		aliasCols)
+
+	_, err := tx.ExecContext(ctx, stmt,
+		member_id, alias,
+		time.Now(), time.Now(),
+	)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // scanRowsToMembers takes a pointer to *sql.Rows and scans those values into a slice of Members
@@ -77,7 +95,30 @@ func scanRowsToMembers(rows *sql.Rows) ([]models.Member, error) {
 	return members, nil
 }
 
-// AllMembers returns a slice of all members in database
+// scanRowsToMembersAliases takes a pointer to *sql.Rows and scans those values into a slice of MemberAliases
+func scanRowsToMemberAliases(rows *sql.Rows) ([]models.MemberAlias, error) {
+	var aliases []models.MemberAlias
+	var memberId int
+
+	for rows.Next() {
+		m := models.MemberAlias{}
+		err := rows.Scan(&m.ID, &memberId, &m.Name,
+			&m.CreatedAt, &m.UpdatedAt)
+		if err != nil {
+			return aliases, err
+		}
+
+		aliases = append(aliases, m)
+	}
+	err := rows.Err()
+	if err != nil {
+		return aliases, err
+	}
+
+	return aliases, nil
+}
+
+// AllMembers returns a slice of all members in database. Does not populate member aliases
 func (m *postgresDBRepo) AllMembers() ([]models.Member, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
@@ -95,7 +136,7 @@ func (m *postgresDBRepo) AllMembers() ([]models.Member, error) {
 	return scanRowsToMembers(rows)
 }
 
-// GetMemberByActive returns a slice of all members that have status = active
+// GetMemberByActive returns a slice of all members that have status = active. Does not populate member aliases
 func (m *postgresDBRepo) GetMemberByActive(active bool) ([]models.Member, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
@@ -113,7 +154,7 @@ func (m *postgresDBRepo) GetMemberByActive(active bool) ([]models.Member, error)
 	return scanRowsToMembers(rows)
 }
 
-// GetMemberByID returns one member from a given id
+// GetMemberByID returns one member from a given id, populates aliases
 func (m *postgresDBRepo) GetMemberByID(id int) (models.Member, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
@@ -133,33 +174,64 @@ func (m *postgresDBRepo) GetMemberByID(id int) (models.Member, error) {
 		return v, err
 	}
 
+	// get member aliases
+	q = fmt.Sprintf(`SELECT id, %s FROM member_aliases WHERE member_id = $1`, aliasCols)
+	rows, err := m.DB.QueryContext(ctx, q, id)
+	if err != nil {
+		return v, err
+	}
+	defer rows.Close()
+
+	v.Aliases, err = scanRowsToMemberAliases(rows)
+	if err != nil {
+		return v, err
+	}
+
 	return v, nil
 }
 
 // UpdateMember updates a member in the database
 func (m *postgresDBRepo) UpdateMember(v models.Member) error {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancel()
+	return runInTx(m.DB, func(tx *sql.Tx) error {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
 
-	q := `UPDATE members SET
+		q := `UPDATE members SET
 			name = $1,
 			email = $2,
 			updated_at = $3
-		WHERE id =  $4
-		`
+		WHERE id =  $4 `
 
-	_, err := m.DB.ExecContext(ctx, q,
-		v.Name,
-		v.Email,
-		time.Now(),
-		v.ID,
-	)
+		_, err := tx.ExecContext(ctx, q,
+			v.Name,
+			v.Email,
+			time.Now(),
+			v.ID,
+		)
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		return err
-	}
+		// delete and re-add member_aliases. This avoids needing to check for updated aliases
+		// delete existing member_aliases
+		q = `DELETE from member_aliases WHERE member_id = $1`
+		_, err = tx.ExecContext(ctx, q, v.ID)
+		if err != nil {
+			return err
+		}
 
-	return nil
+		// re-add member_aliases
+		for _, a := range v.Aliases {
+			err := insertMemberAliasesTx(tx, ctx, v.ID, a.Name)
+
+			if err != nil {
+				return err
+			}
+
+		}
+
+		return nil
+	})
 }
 
 // UpdateMemberActiveByID updates the active status of a member by id
@@ -186,19 +258,27 @@ func (m *postgresDBRepo) UpdateMemberActiveByID(id int, active bool) error {
 	return nil
 }
 
-// DeleteMember deletes one member by id
+// DeleteMember deletes one member by id. Also deletes all member_aliases with that member id
 // We should almost never actually delete a member
 // because it will be referenced by a lot of mileage logs.
 func (m *postgresDBRepo) DeleteMember(id int) error {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancel()
+	return runInTx(m.DB, func(tx *sql.Tx) error {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
 
-	q := `DELETE from members WHERE id=$1`
+		q := `DELETE from member_aliases WHERE member_id = $1`
+		_, err := tx.ExecContext(ctx, q, id)
+		if err != nil {
+			return err
+		}
 
-	_, err := m.DB.ExecContext(ctx, q, id)
-	if err != nil {
-		return err
-	}
+		q = `DELETE from members WHERE id=$1`
 
-	return nil
+		_, err = tx.ExecContext(ctx, q, id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

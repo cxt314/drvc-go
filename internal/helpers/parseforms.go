@@ -61,6 +61,18 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 	v.Email = r.Form.Get("email")
 
 	// parse member aliases
+	// clear out old aliases
+	v.Aliases = []models.MemberAlias{}
+
+	formAliases := r.Form["aliases"]
+	for _, a := range formAliases {
+		if a != "" {
+			v.Aliases = append(v.Aliases, models.MemberAlias{
+				Name: a,
+			})
+		}
+	}
+	//log.Println(v)
 
 	return nil
 }
