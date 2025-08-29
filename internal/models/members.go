@@ -8,6 +8,7 @@ type Member struct {
 	ID        int
 	Name      string
 	Email     string
+	Aliases   []MemberAlias
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

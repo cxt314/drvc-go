@@ -2,6 +2,8 @@ package dbrepo
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/cxt314/drvc-go/internal/models"
@@ -71,4 +73,23 @@ func (m *postgresDBRepo) UpdateUser(v models.User) error {
 	}
 
 	return nil
+}
+
+func runInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	err = fn(tx)
+	if err == nil {
+		return tx.Commit()
+	}
+
+	rollbackErr := tx.Rollback()
+	if rollbackErr != nil {
+		return errors.Join(err, rollbackErr)
+	}
+
+	return err
 }

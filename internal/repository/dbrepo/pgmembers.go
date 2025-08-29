@@ -10,28 +10,49 @@ import (
 )
 
 // memberCols lists the columns in the members table EXCEPT "id"
-const memberCols = `name, email,
-				created_at, updated_at`
+const memberCols = `name, email, created_at, updated_at`
+const aliasCols = `member_id, name, created_at, updated_at`
 
 // InsertMember inserts a Member into the database
 func (m *postgresDBRepo) InsertMember(v models.Member) error {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancel()
+	return runInTx(m.DB, func(tx *sql.Tx) error {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
 
-	stmt := fmt.Sprintf(`INSERT INTO members (%s)
+		var lastInsertId int
+		// insert into members table & return inserted member id
+		stmt := fmt.Sprintf(`INSERT INTO members (%s)
+				VALUES ($1, $2, $3, $4)
+				RETURNING id`,
+			memberCols)
+
+		err := tx.QueryRowContext(ctx, stmt,
+			v.Name, v.Email,
+			time.Now(), time.Now(),
+		).Scan(&lastInsertId)
+		if err != nil {
+			return err
+		}
+
+		// insert aliases into member_aliases table
+		for _, a := range v.Aliases {
+			stmt := fmt.Sprintf(`INSERT INTO member_aliases (%s)
 				VALUES ($1, $2, $3, $4)`,
-		memberCols)
+				aliasCols)
 
-	_, err := m.DB.ExecContext(ctx, stmt,
-		v.Name, v.Email,
-		time.Now(), time.Now(),
-	)
+			_, err := tx.ExecContext(ctx, stmt,
+				lastInsertId, a.Name,
+				time.Now(), time.Now(),
+			)
 
-	if err != nil {
-		return err
-	}
+			if err != nil {
+				return err
+			}
 
-	return nil
+		}
+
+		return nil
+	})
 }
 
 // scanRowsToMembers takes a pointer to *sql.Rows and scans those values into a slice of Members
