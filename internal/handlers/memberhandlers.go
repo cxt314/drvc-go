@@ -161,7 +161,17 @@ func (m *Repository) MemberDeactivate(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) AddAlias(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	html := `<div class="col-3 mb-2"><input class="form-control" type="text" name="aliases"></div>`
+	html := `
+		<div class="col-3 mb-2 alias-group">
+			<div class="input-group">
+				<input class="form-control" type="text" name="aliases">
+				<span class="input-group-text">
+					<button type="button" class="btn-close" aria-label="Close"
+						hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
+				</span>
+			</div>
+		</div>
+		`
 
 	w.Write([]byte(html))
 }

@@ -1,6 +1,9 @@
 {{template "base" .}}
 
-{{define "title"}}Create New Member{{end}}
+{{define "title"}}
+    {{ $v := index .Data "member" }}
+    {{if $v}}Edit {{else}}Create {{end}}Member
+{{end}}
 
 {{define "content"}}
     <div class="container">
@@ -47,9 +50,25 @@
                     </div>
                     <div id="member-aliases" class="row">
                         {{ range $v.Aliases }}
-                            <div class="col-3 mb-2"><input class="form-control" type="text" name="aliases" value="{{.Name}}"></div>
+                        <div class="col-3 mb-2 alias-group">
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="aliases" value="{{.Name}}">
+                                <span class="input-group-text">
+                                    <button type="button" class="btn-close" aria-label="Close"
+                                        hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
+                                </span>
+                            </div>
+                        </div>
                         {{ end }}
-                        <div class="col-3 mb-2"><input class="form-control" type="text" name="aliases"></div>
+                        <div class="col-3 mb-2 alias-group">
+                            <div class="input-group">
+                                <input class="form-control" type="text" name="aliases">
+                                <span class="input-group-text">
+                                    <button type="button" class="btn-close" aria-label="Close"
+                                        hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     <hr>
                     <div class="row">

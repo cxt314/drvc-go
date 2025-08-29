@@ -60,6 +60,11 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (m *Repository) RemoveItem(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	w.Write([]byte(""))
+}
+
 // PostReservation is a sample function for how to handle form parsing & validation
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()

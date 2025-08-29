@@ -20,6 +20,7 @@ func routes(app *config.AppConfig) http.Handler {
 	// routes
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
+	mux.Get("/remove-item", handlers.Repo.RemoveItem)
 
 	// vehicles handlers
 	mux.Get("/vehicles", handlers.Repo.VehicleList)
