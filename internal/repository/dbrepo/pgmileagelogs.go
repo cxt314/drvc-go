@@ -28,7 +28,7 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) error {
 			mileageLogCols)
 
 		err := tx.QueryRowContext(ctx, stmt,
-			v.Name, 
+			v.Name,
 			time.Now(), time.Now(),
 		).Scan(&lastInsertId)
 		if err != nil {
@@ -250,21 +250,19 @@ func (m *postgresDBRepo) UpdateMileageLogActiveByID(id int, active bool) error {
 	return nil
 }
 
-// DeleteMileageLog deletes one member by id. Also deletes all member_aliases with that member id
-// We should almost never actually delete a member
-// because it will be referenced by a lot of mileage logs.
+// DeleteMileageLog deletes one mielage log by id. Also deletes all trips with that mileage log id
 func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 	return runInTx(m.DB, func(tx *sql.Tx) error {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
-		q := `DELETE from member_aliases WHERE member_id = $1`
+		q := `DELETE from trips WHERE mileage_log_id = $1`
 		_, err := tx.ExecContext(ctx, q, id)
 		if err != nil {
 			return err
 		}
 
-		q = `DELETE from members WHERE id=$1`
+		q = `DELETE from mileage_logs WHERE id=$1`
 
 		_, err = tx.ExecContext(ctx, q, id)
 		if err != nil {
