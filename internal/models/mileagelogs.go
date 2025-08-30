@@ -12,6 +12,7 @@ type MileageLog struct {
 	Month         int
 	StartOdometer int
 	EndOdometer   int
+	Trips         []Trip
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }

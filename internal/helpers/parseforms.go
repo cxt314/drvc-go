@@ -76,3 +76,27 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 
 	return nil
 }
+
+func ParseFormToMileageLog(r *http.Request, v *models.MileageLog) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	// parse string fields
+	v.Name = r.Form.Get("name")
+
+	// parse trips
+	// clear out trips
+	v.Trips = []models.Trip{}
+
+	formTrips := r.Form["trips"]
+	for _, a := range formTrips {
+		if a != "" {
+			v.Trips = append(v.Trips, models.Trip{})
+		}
+	}
+	//log.Println(v)
+
+	return nil
+}
