@@ -20,7 +20,6 @@ func routes(app *config.AppConfig) http.Handler {
 	// routes
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
-	mux.Get("/remove-item", handlers.Repo.RemoveItem)
 
 	// vehicles handlers
 	mux.Get("/vehicles", handlers.Repo.VehicleList)
@@ -39,6 +38,19 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/members/{id}", handlers.Repo.MemberEditPost)
 	//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
 	mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
+
+	// mileage logs handlers
+	mux.Get("/mileage-logs", handlers.Repo.MileageLogList)
+	mux.Get("/new-mileage-log", handlers.Repo.MileageLogCreate)
+	mux.Post("/new-mileage-log", handlers.Repo.MileageLogCreatePost)
+	mux.Get("/mileage-logs/{id}", handlers.Repo.MileageLogEdit)
+	mux.Post("/mileage-logs/{id}", handlers.Repo.MileageLogEditPost)
+	mux.Get("/mileage-logs/{id}/delete", handlers.Repo.MileageLogDelete)
+	mux.Get("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEdit)
+	mux.Post("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEditPost)
+
+	// htmx routes
+	mux.Get("/remove-item", handlers.Repo.RemoveItem)
 	mux.Get("/members/add-alias", handlers.Repo.AddAlias)
 
 	// sample reservation routes
