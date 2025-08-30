@@ -182,21 +182,29 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 	return v, nil
 }
 
-// UpdateMileageLog updates a member in the database
+// UpdateMileageLog updates a mielage log in the database
 func (m *postgresDBRepo) UpdateMileageLog(v models.MileageLog) error {
 	return runInTx(m.DB, func(tx *sql.Tx) error {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
-		q := `UPDATE members SET
-			name = $1,
-			email = $2,
-			updated_at = $3
-		WHERE id =  $4 `
+		q := `UPDATE mileage_logs SET
+			vehicle_id = $1,
+			name = $2,
+			year = $3,
+			month = $4, 
+			start_odometer = $5,
+			end_odometer = $6,
+			updated_at = $7
+		WHERE id =  $8 `
 
 		_, err := tx.ExecContext(ctx, q,
+			v.Vehicle.ID,
 			v.Name,
-			v.Email,
+			v.Year,
+			v.Month,
+			v.StartOdometer,
+			v.EndOdometer,
 			time.Now(),
 			v.ID,
 		)
@@ -204,50 +212,10 @@ func (m *postgresDBRepo) UpdateMileageLog(v models.MileageLog) error {
 			return err
 		}
 
-		// delete and re-add member_aliases. This avoids needing to check for updated aliases
-		// delete existing member_aliases
-		q = `DELETE from member_aliases WHERE member_id = $1`
-		_, err = tx.ExecContext(ctx, q, v.ID)
-		if err != nil {
-			return err
-		}
-
-		// re-add member_aliases
-		for _, a := range v.Trips {
-			err := insertTripsTx(tx, ctx, v.ID, a.Name)
-
-			if err != nil {
-				return err
-			}
-
-		}
+		// do we process trips here?
 
 		return nil
 	})
-}
-
-// UpdateMileageLogActiveByID updates the active status of a member by id
-func (m *postgresDBRepo) UpdateMileageLogActiveByID(id int, active bool) error {
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancel()
-
-	q := `UPDATE members SET
-			is_active = $1,
-			updated_at = $2
-		WHERE id =  $3
-		`
-
-	_, err := m.DB.ExecContext(ctx, q,
-		active,
-		time.Now(),
-		id,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // DeleteMileageLog deletes one mielage log by id. Also deletes all trips with that mileage log id
