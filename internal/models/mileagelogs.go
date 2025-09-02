@@ -28,12 +28,14 @@ type Trip struct {
 	IsLongDistance bool
 	Destination    string
 	Purpose        string
+	Riders         []Member
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
 
 // Rider describes the rider model
-// This model associates a DRVC member with a trip
+// This model describes the riders table which represents 
+// the M2M relationship between a DRVC member and a trip
 type Rider struct {
 	ID        int
 	Trip      Trip

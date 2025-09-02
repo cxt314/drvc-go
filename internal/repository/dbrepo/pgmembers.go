@@ -57,6 +57,7 @@ func (m *postgresDBRepo) InsertMember(v models.Member) error {
 	})
 }
 
+// insertMemberAliasesTx is a helper function that takes a transaction and uses it to insert member aliases
 func insertMemberAliasesTx(tx *sql.Tx, ctx context.Context, member_id int, alias string) error {
 	stmt := fmt.Sprintf(`INSERT INTO member_aliases (%s)
 				VALUES ($1, $2, $3, $4)`,
