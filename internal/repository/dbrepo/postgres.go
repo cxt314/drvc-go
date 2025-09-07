@@ -93,3 +93,22 @@ func runInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
 
 	return err
 }
+
+func runInTxReturnID(db *sql.DB, fn func(tx *sql.Tx) (int, error)) (int, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	insertedID, err := fn(tx)
+	if err == nil {
+		return insertedID, tx.Commit()
+	}
+
+	rollbackErr := tx.Rollback()
+	if rollbackErr != nil {
+		return 0, errors.Join(err, rollbackErr)
+	}
+
+	return 0, err
+}

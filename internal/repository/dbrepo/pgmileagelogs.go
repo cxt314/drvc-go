@@ -17,8 +17,8 @@ const riderCols = `trip_id, member_id, created_at, updated_at`
 
 // InsertMileageLog inserts a MileageLog into the database. This is wrapped in a transaction
 // due to needing to insert trips and riders as well
-func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) error {
-	return runInTx(m.DB, func(tx *sql.Tx) error {
+func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) (int, error) {
+	return runInTxReturnID(m.DB, func(tx *sql.Tx) (int, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 		defer cancel()
 
@@ -34,7 +34,7 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) error {
 			time.Now(), time.Now(),
 		).Scan(&lastInsertId)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		// insert trips into trips table
@@ -42,12 +42,12 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) error {
 			err := insertTripsTx(tx, ctx, lastInsertId, a)
 
 			if err != nil {
-				return err
+				return 0, err
 			}
 
 		}
 
-		return nil
+		return lastInsertId, nil
 	})
 }
 

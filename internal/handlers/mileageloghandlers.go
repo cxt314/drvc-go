@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -72,8 +73,35 @@ func (m *Repository) MileageLogCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) MileageLogCreatePost(w http.ResponseWriter, r *http.Request) {
+	// parse received form values into mileage log object
+	v := models.MileageLog{}
+	err := helpers.ParseFormToMileageLog(r, &v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	form := forms.New(r.PostForm)
+	// do form validation checks
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["mileage-log"] = v
+
+		render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	insertedID, err := m.DB.InsertMileageLog(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/list/%d", insertedID), http.StatusSeeOther)
 }
 
 func (m *Repository) MileageLogEdit(w http.ResponseWriter, r *http.Request) {
