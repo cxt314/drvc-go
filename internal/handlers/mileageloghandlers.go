@@ -2,14 +2,51 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
+	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
 
 func (m *Repository) MileageLogList(w http.ResponseWriter, r *http.Request) {
+	// get vehicles
+	vehicles, err := m.DB.GetVehicleByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data := make(map[string]interface{})
+	data["vehicles"] = vehicles
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	render.Template(w, r, "mileage-log-list.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
+}
+
+func (m *Repository) MileageLogListByVehicle(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// get vehicles
+	vehicles, err := m.DB.GetVehicleByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data := make(map[string]interface{})
+	data["vehicles"] = vehicles
+
+	// get mileage logs for vehicle id
+	logs, err := m.DB.GetMil
+	render.Template(w, r, "mileage-log-list.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 func (m *Repository) MileageLogCreate(w http.ResponseWriter, r *http.Request) {

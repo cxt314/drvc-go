@@ -41,6 +41,7 @@ func routes(app *config.AppConfig) http.Handler {
 
 	// mileage logs handlers
 	mux.Get("/mileage-logs", handlers.Repo.MileageLogList)
+	mux.Get("/mileage-logs/list/{id}", handlers.Repo.MileageLogListByVehicle)
 	mux.Get("/new-mileage-log", handlers.Repo.MileageLogCreate)
 	mux.Post("/new-mileage-log", handlers.Repo.MileageLogCreatePost)
 	mux.Get("/mileage-logs/{id}", handlers.Repo.MileageLogEdit)

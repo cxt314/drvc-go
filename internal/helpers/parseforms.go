@@ -93,6 +93,7 @@ func ParseFormToMileageLog(r *http.Request, v *models.MileageLog) error {
 	formTrips := r.Form["trips"]
 	for _, a := range formTrips {
 		if a != "" {
+			// TODO: parse 'a' into a Trip struct
 			v.Trips = append(v.Trips, models.Trip{})
 		}
 	}

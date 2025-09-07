@@ -21,4 +21,11 @@ type DatabaseRepo interface {
 	UpdateMember(v models.Member) error
 	UpdateMemberActiveByID(id int, active bool) error
 	DeleteMember(id int) error
+
+	InsertMileageLog(v models.MileageLog) error
+	AllMileageLogs() ([]models.MileageLog, error)
+	GetMileageLogByVehicleID(vehicle_id int) ([]models.MileageLog, error)
+	GetMileageLogByID(id int) (models.MileageLog, error)
+	UpdateMileageLog(v models.MileageLog) error
+	DeleteMileageLog(id int) error
 }
