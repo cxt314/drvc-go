@@ -8,11 +8,6 @@ Mileage Logs
     <div class="container">
         {{ $selectedVehicle := index .Data "selected-vehicle" }}
         <div class="row">
-            <div class="col">
-                <h1>Mileage Logs</h1>
-                
-
-            </div>
             <div class="col-3">
                 <form action="/new-mileage-log" method="GET">
                     <button class="btn btn-primary" name="send" value="new">
@@ -20,6 +15,7 @@ Mileage Logs
                     </button>
                 </form>
             </div>
+            <div class="col"></div>
         </div>
         <div class="row">
             <div class="col-3">
@@ -27,7 +23,7 @@ Mileage Logs
                 <div class="nav flex-column nav-tabs text-center">
                     {{ $vehicles := index .Data "vehicles" }}
                     {{ range $vehicles }}
-                    <a href="/mileage-logs/list/{{ .ID }}" class="nav-link">
+                    <a href="/mileage-logs/list/{{ .ID }}" class="nav-link {{if eq $selectedVehicle.ID .ID }} active {{ end }}">
                         {{ .Name }}    
                     </a>
                     {{ end }}
@@ -38,6 +34,7 @@ Mileage Logs
             <div class="col-9">
                 {{ $logs := index .Data "mileage-logs" }}
                 {{ if $selectedVehicle }}
+                    <h3>{{ $selectedVehicle.Name }} Mileage Logs</h3>
                     {{if not $logs}}
                         <h5>No logs exist for this vehicle</h5>
                     {{else}}

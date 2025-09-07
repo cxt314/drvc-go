@@ -29,9 +29,12 @@
                                 {{with .Form.Errors.Get "vehicle"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
-                                <input class="form-control {{with .Form.Errors.Get "vehicle"}} is-invalid {{end}}"
-                                    id="vehicle" autocomplete="off" type='text'
-                                    name='vehicle' value="{{$v.Vehicle.ID}}" required>
+                                <select class="form-select" aria-label="Vehicle select" id="vehicle"
+                                    name="vehicle" required>
+                                    {{ range index .Data "vehicles" }}
+                                        <option value="{{.ID}}" {{if eq .ID $v.Vehicle.ID }} selected {{ end }}>{{.Name}}</option>
+                                    {{ end }}
+                                </select>
                             </div>
                         </div>
                         <div class="col">
@@ -89,15 +92,7 @@
                             <input type="submit" class="btn btn-primary" value="Save">
                         </div>
                         <div class="col-8"></div>
-                        <div class="col">
-                            {{ if $v }}
-                            <a href="/vehicles/{{$v.ID}}/deactivate">
-                                <button form="deactivate_vehicle" class="btn btn-secondary" name="deactivate" value="deactivate">
-                                    Deactivate Vehicle
-                                </button>
-                            </a>
-                            {{ end }}
-                        </div>
+                        <div class="col"></div>
                     </div> 
                 </form>
 
@@ -108,17 +103,3 @@
     </div>
 {{end}}
 
-{{define "js"}}
-<script>
-    const elem = document.querySelector('input[name="purchase_date"]');
-    const datePicker = new Datepicker(elem, {
-        format: "yyyy-mm-dd",
-    });
-
-    const elemSale = document.querySelector('input[name="sale_date"]');
-    const datePickerSale = new Datepicker(elemSale, {
-        format: "yyyy-mm-dd",
-    });
-</script>
-
-{{end}}

@@ -86,6 +86,32 @@ func ParseFormToMileageLog(r *http.Request, v *models.MileageLog) error {
 	// parse string fields
 	v.Name = r.Form.Get("name")
 
+	// parse number fields
+	v.Year, err = strconv.Atoi(r.Form.Get("year"))
+	if err != nil {
+		return err
+	}
+
+	v.Month, err = strconv.Atoi(r.Form.Get("month"))
+	if err != nil {
+		return err
+	}
+
+	v.Vehicle.ID, err = strconv.Atoi(r.Form.Get("vehicle"))
+	if err != nil {
+		return err
+	}
+
+	v.StartOdometer, err = strconv.Atoi(r.Form.Get("start_odometer"))
+	if err != nil {
+		return err
+	}
+
+	v.EndOdometer, err = strconv.Atoi(r.Form.Get("end_odometer"))
+	if err != nil {
+		return err
+	}
+
 	// parse trips
 	// clear out trips
 	v.Trips = []models.Trip{}

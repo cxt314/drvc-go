@@ -67,8 +67,18 @@ func (m *Repository) MileageLogListByVehicle(w http.ResponseWriter, r *http.Requ
 }
 
 func (m *Repository) MileageLogCreate(w http.ResponseWriter, r *http.Request) {
+	vehicles, err := m.DB.GetVehicleByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["vehicles"] = vehicles
+
 	render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
+		Data: data,
 	})
 }
 
@@ -88,6 +98,14 @@ func (m *Repository) MileageLogCreatePost(w http.ResponseWriter, r *http.Request
 		data := make(map[string]interface{})
 		data["mileage-log"] = v
 
+		vehicles, err := m.DB.GetVehicleByActive(true)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		data["vehicles"] = vehicles
+
 		render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
 			Form: form,
 			Data: data,
@@ -102,16 +120,93 @@ func (m *Repository) MileageLogCreatePost(w http.ResponseWriter, r *http.Request
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/list/%d", insertedID), http.StatusSeeOther)
+
 }
 
 func (m *Repository) MileageLogEdit(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]interface{})
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	// get vehicles for dropdown list
+	vehicles, err := m.DB.GetVehicleByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data["vehicles"] = vehicles
+
+	// get mileage log from database
+	v, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data["mileage-log"] = v
+
+	render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+	})
 }
 
 func (m *Repository) MileageLogEditPost(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	// get mileage log from database
+	v, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// parse form into fetched mileage log
+	err = helpers.ParseFormToMileageLog(r, &v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	// do form validation checks
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["mileage-log"] = v
+
+		vehicles, err := m.DB.GetVehicleByActive(true)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		data["vehicles"] = vehicles
+
+		render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	err = m.DB.UpdateMileageLog(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Updated mileage log successfully")
+	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d", id), http.StatusSeeOther)
 }
 
 func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
