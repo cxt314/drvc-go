@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cxt314/drvc-go/internal/forms"
 	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
@@ -65,8 +66,9 @@ func (m *Repository) MileageLogListByVehicle(w http.ResponseWriter, r *http.Requ
 }
 
 func (m *Repository) MileageLogCreate(w http.ResponseWriter, r *http.Request) {
-
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	render.Template(w, r, "edit-mileage-log.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (m *Repository) MileageLogCreatePost(w http.ResponseWriter, r *http.Request) {
