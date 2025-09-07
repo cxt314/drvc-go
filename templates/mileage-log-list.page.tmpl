@@ -1,0 +1,58 @@
+{{template "base" .}}
+
+{{define "title"}}
+Mileage Logs
+{{end}}
+
+{{define "content"}}
+    <div class="container">
+        {{ $selectedVehicle := index .Data "selected-vehicle" }}
+        <div class="row">
+            <div class="col">
+                <h1>Mileage Logs</h1>
+                
+
+            </div>
+            <div class="col-3">
+                <form action="/new-mileage-log" method="GET">
+                    <button class="btn btn-primary" name="send" value="new">
+                        Create New Mileage Log
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <!-- Vehicle Tab Navs-->
+                <div class="nav flex-column nav-tabs text-center">
+                    {{ $vehicles := index .Data "vehicles" }}
+                    {{ range $vehicles }}
+                    <a href="/mileage-logs/list/{{ .ID }}" class="nav-link">
+                        {{ .Name }}    
+                    </a>
+                    {{ end }}
+                </div>
+                <!-- End Vehicle Tab Navs-->
+            </div>
+
+            <div class="col-9">
+                {{ $logs := index .Data "mileage-logs" }}
+                {{ if $selectedVehicle }}
+                    {{if not $logs}}
+                        <h5>No logs exist for this vehicle</h5>
+                    {{else}}
+                        <ul>
+                            {{ range $logs }}
+                                <li><a href="/mileage-logs/{{ .ID }}">{{ .Year }} - {{ .Month }}</a></li>
+                            {{ end }}
+                        </ul>
+                    {{end}}
+                {{ else }}
+                    <h5> Select a vehicle to view its mileage logs.</h5>
+                {{ end }}
+
+            </div>
+        </div>
+    </div>
+{{end}}
+

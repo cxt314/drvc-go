@@ -24,7 +24,7 @@ type DatabaseRepo interface {
 
 	InsertMileageLog(v models.MileageLog) error
 	AllMileageLogs() ([]models.MileageLog, error)
-	GetMileageLogByVehicleID(vehicle_id int) ([]models.MileageLog, error)
+	GetMileageLogsByVehicleID(vehicle_id int) ([]models.MileageLog, error)
 	GetMileageLogByID(id int) (models.MileageLog, error)
 	UpdateMileageLog(v models.MileageLog) error
 	DeleteMileageLog(id int) error

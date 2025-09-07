@@ -144,7 +144,7 @@ func (m *postgresDBRepo) AllMileageLogs() ([]models.MileageLog, error) {
 }
 
 // GetMileageLogByVehicleID returns a slice of all members that have status = active. Does not populate member aliases
-func (m *postgresDBRepo) GetMileageLogByVehicleID(vehicle_id int) ([]models.MileageLog, error) {
+func (m *postgresDBRepo) GetMileageLogsByVehicleID(vehicle_id int) ([]models.MileageLog, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 

@@ -33,17 +33,32 @@ func (m *Repository) MileageLogListByVehicle(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	data := make(map[string]interface{})
+
 	// get vehicles
 	vehicles, err := m.DB.GetVehicleByActive(true)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
-	data := make(map[string]interface{})
 	data["vehicles"] = vehicles
 
+	// get active vehicle
+	selectedVehicle, err := m.DB.GetVehicleByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data["selected-vehicle"] = selectedVehicle
+
 	// get mileage logs for vehicle id
-	logs, err := m.DB.GetMil
+	logs, err := m.DB.GetMileageLogsByVehicleID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	data["mileage-logs"] = logs
+
 	render.Template(w, r, "mileage-log-list.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
