@@ -113,7 +113,38 @@
                             <a href="/mileage-logs/{{ $v.ID }}/edit-trips"><button class="btn btn-info">Update Trips</button></a>
                         </div>
                     </div>
-                    
+                    <div class="row">
+                        <div class="col">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Day</th>
+                                        <th scope="col">Start</th>
+                                        <th scope="col">End</th>
+                                        <th scope="col">LD?</th>
+                                        <th scope="col">Riders</th>
+                                        <th scope="col">Destination</th>
+                                        <th scope="col">Purpose</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range $v.Trips}}
+                                    <tr>
+                                        <td>{{ .TripDate }}</td>
+                                        <td> {{ .StartMileage }}</td>
+                                        <td> {{ .EndMileage }}</td>
+                                        <td> {{ .IsLongDistance }}</td>
+                                        <td> {{ .Riders }}</td>
+                                        <td> {{ .Destination }}</td>
+                                        <td> {{ .Purpose }}</td>
+                                        <td> Edit </td>
+                                    </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

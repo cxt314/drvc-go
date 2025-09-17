@@ -215,6 +215,14 @@ func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
+	// exploded := strings.Split(r.RequestURI, "/")
+	// id, err := strconv.Atoi(exploded[2])
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
+
+	// get mileage log trips by mileage-log id
 
 	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
 }

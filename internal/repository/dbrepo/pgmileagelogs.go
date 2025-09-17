@@ -183,14 +183,18 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 	}
 
 	// get trips
-	q = fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1`, tripCols)
-	rows, err := m.DB.QueryContext(ctx, q, id)
-	if err != nil {
-		return v, err
-	}
-	defer rows.Close()
+	// q = fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1`, tripCols)
+	// rows, err := m.DB.QueryContext(ctx, q, id)
+	// if err != nil {
+	// 	return v, err
+	// }
+	// defer rows.Close()
 
-	v.Trips, err = m.scanRowsToTrips(rows)
+	// v.Trips, err = m.scanRowsToTrips(rows)
+	// if err != nil {
+	// 	return v, err
+	// }
+	v.Trips, err = m.GetTripsByMileageLogID(id)
 	if err != nil {
 		return v, err
 	}
@@ -305,3 +309,21 @@ func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 		return nil
 	})
 }
+
+func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Trip, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id=$1`, tripCols)
+
+	// execute our DB query
+	rows, err := m.DB.QueryContext(ctx, q, mileage_log_id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// process query result into slice of members to return
+	return m.scanRowsToTrips(rows)
+}
+
