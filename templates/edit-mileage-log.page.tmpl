@@ -89,7 +89,7 @@
                     <hr>
                     <div class="row">
                         <div class="col">
-                            <input type="submit" class="btn btn-primary" value="Save">
+                            <input type="submit" class="btn btn-primary" value="Save Mileage Log Details">
                         </div>
                         <div class="col-8"></div>
                         <div class="col"></div>
@@ -100,6 +100,24 @@
             </div>
         </div>
 
+        {{ if $v }}
+        <div class="row mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title">Trips</h5>
+                        </div>
+                        <div class="col-8"></div>
+                        <div class="col">
+                            <a href="/mileage-logs/{{ $v.ID }}/edit-trips"><button class="btn btn-info">Update Trips</button></a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        {{ end }}
     </div>
 {{end}}
 
