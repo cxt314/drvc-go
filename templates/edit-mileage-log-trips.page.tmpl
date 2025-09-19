@@ -1,0 +1,158 @@
+{{template "base" .}}
+
+{{define "title"}}Edit Trips{{end}}
+
+{{define "content"}}
+    <div class="container">
+        {{ $v := index .Data "mileage-log" }}
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-3">Mileage Log: {{$v.Name}} - Update Trips</h1>
+
+                <div class="row">
+                    <div class="col">
+                        <p><b>Vehicle:</b> {{ $v.Vehicle.Name }}</p>
+                        <p><b>Year/Month:</b> {{ $v.Year }}/{{ $v.Month }}</p>
+                        <p><b>Odometer Start:</b> {{ $v.StartOdometer }}</p>
+                        <p><b>Odometer End:</b> {{ $v.EndOdometer }}</p>
+                    </div>
+                    <div class="col-6"></div>
+                    <div class="col">
+                        <a href="/mileage-logs/{{$v.ID}}"><button type="button" class="btn btn-primary">
+                            Edit Mileage Log Details
+                        </button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ if $v }}
+        <div class="row mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="card-title">Trips</h4>
+                        </div>
+                        <div class="col-8"></div>
+                        <div class="col"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <form method="post" action="#" class="" novalidate>
+                                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="trip-day">Day:</label>
+                                            <input class="form-control"
+                                                id="trip-day" autocomplete="off" type='number'
+                                                name='trip-day' min="1" max="31" required>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="start-mileage">Start:</label>
+                                            <input class="form-control"
+                                                id="start-mileage" autocomplete="off" type='number'
+                                                name='start-mileage' min="0" max="999" value="{{ index .IntMap "last-odometer-value" }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="end-mileage">End (last 3 digits):</label>
+                                            <input class="form-control"
+                                                id="end-mileage" autocomplete="off" type='number'
+                                                name='end-mileage' min="0" max="999" required>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="destination">Destination:</label>
+                                            <input class="form-control"
+                                                id="destination" autocomplete="off" type='text'
+                                                name='destination' >
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="purpose">Purpose:</label>
+                                            <input class="form-control"
+                                                id="purpose" autocomplete="off" type='text'
+                                                name='purpose' >
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group mt-3">
+                                            <label for="is-ld">LD?:</label>
+                                            <input class="form-check-input"
+                                                id="is-ld" autocomplete="off" type='checkbox'
+                                                name='is-ld' value="ld" >
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="riders">Riders:</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="col-3 mb-2 rider-group">
+                                            <div class="input-group">
+                                                <input class="form-control" type="text" name="riders">
+                                                <span class="input-group-text">
+                                                    <button type="button" class="btn-close" aria-label="Close"
+                                                        hx-get="/remove-item" hx-trigger="click" hx-target="closest .rider-group" hx-swap="outerHTML" hx-confirm="Delete rider?"></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Day</th>
+                                        <th scope="col">Start</th>
+                                        <th scope="col">End</th>
+                                        <th scope="col">LD?</th>
+                                        <th scope="col">Riders</th>
+                                        <th scope="col">Destination</th>
+                                        <th scope="col">Purpose</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trip-list">
+                                    {{range $v.Trips}}
+                                    <tr>
+                                        <td>{{ .TripDate }}</td>
+                                        <td> {{ .StartMileage }}</td>
+                                        <td> {{ .EndMileage }}</td>
+                                        <td> {{ .IsLongDistance }}</td>
+                                        <td> {{ .Riders }}</td>
+                                        <td> {{ .Destination }}</td>
+                                        <td> {{ .Purpose }}</td>
+                                        <td> Edit </td>
+                                    </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+{{end}}
+

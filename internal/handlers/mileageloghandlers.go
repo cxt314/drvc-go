@@ -215,19 +215,45 @@ func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
-	// exploded := strings.Split(r.RequestURI, "/")
-	// id, err := strconv.Atoi(exploded[2])
-	// if err != nil {
-	// 	helpers.ServerError(w, err)
-	// 	return
-	// }
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	// get mileage log trips by mileage-log id
+	// get mileage log from database
+	data := make(map[string]interface{})
+	v, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	data["mileage-log"] = v
+
+	intmap := make(map[string]int)
+	intmap["last-odometer-value"] = calcLastOdometerValue(v)
+
+	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+		IntMap: intmap,
+	})
+
 }
 
 func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
 
 	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+}
+
+// calcLastOdometerValue takes a mileage log and calculates  
+// the last odometer value from trips entered
+func calcLastOdometerValue(log models.MileageLog) int {
+	if len(log.Trips) == 0 {
+		// if there are no trips yet, return StartOdometer from the mileage log
+		return log.StartOdometer 
+	}
+	return log.Trips[len(log.Trips)-1].EndMileage 
 }

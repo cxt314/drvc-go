@@ -182,6 +182,13 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 		return v, err
 	}
 
+	// get vehicle info
+	tmpVehicle, err := m.GetVehicleByID(v.Vehicle.ID)
+	if err != nil {
+		return v, err
+	}
+	v.Vehicle = tmpVehicle
+
 	// get trips
 	// q = fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1`, tripCols)
 	// rows, err := m.DB.QueryContext(ctx, q, id)
@@ -326,4 +333,3 @@ func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Tr
 	// process query result into slice of members to return
 	return m.scanRowsToTrips(rows)
 }
-
