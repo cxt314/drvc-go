@@ -175,8 +175,7 @@
         hideSelected: false,
         duplicates: true,
         options: [
-            {id: 1, name: "Connie", aliases: "CXT, Test"},
-            {id: 2, name: "Cob", aliases: "David"},
+            {{ index .Data "member-options" }}
 
         ],
         labelField: 'name',
@@ -193,7 +192,7 @@
     })
 </script>
 
- <script>
+<script>
     function generateFullOdometerValue() {
         // Get the prefix and last three digits.
         const startMileageFull = document.getElementById('start-mileage').value;

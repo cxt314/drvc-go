@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -214,6 +215,23 @@ func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
+func createRiderOptionsTomSelect(members []models.Member) template.JS {
+	optString := ``
+
+	for _, member := range members {
+		aliasNames := []string{}
+		for _, a := range member.Aliases {
+			aliasNames = append(aliasNames, a.Name)
+		}
+		aliasString := strings.Join(aliasNames, ",")
+
+		memberString := fmt.Sprintf("{id: %d, name: '%s', aliases: '%s'},",
+			member.ID, member.Name, aliasString)
+		optString = optString + memberString
+	}
+	return template.JS(optString)
+}
+
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
 	id, err := strconv.Atoi(exploded[2])
@@ -221,8 +239,6 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 		helpers.ServerError(w, err)
 		return
 	}
-
-	// TODO: get Members from database & send as json for rider selection
 
 	// get mileage log from database
 	data := make(map[string]interface{})
@@ -233,6 +249,15 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data["mileage-log"] = v
+
+	// get Members from database & send as TomSelect compatible for rider selection
+	members, err := m.DB.GetMemberByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data["member-options"] = createRiderOptionsTomSelect(members)
 
 	// calculate last odometer value from trips & mileage log start odometer
 	intmap := make(map[string]int)

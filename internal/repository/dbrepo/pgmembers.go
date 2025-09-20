@@ -75,18 +75,24 @@ func insertMemberAliasesTx(tx *sql.Tx, ctx context.Context, member_id int, alias
 }
 
 // scanRowsToMembers takes a pointer to *sql.Rows and scans those values into a slice of Members
-func scanRowsToMembers(rows *sql.Rows) ([]models.Member, error) {
+func (m *postgresDBRepo) scanRowsToMembers(rows *sql.Rows) ([]models.Member, error) {
 	var members []models.Member
 
 	for rows.Next() {
-		m := models.Member{}
-		err := rows.Scan(&m.ID, &m.Name, &m.Email,
-			&m.CreatedAt, &m.UpdatedAt)
+		newMember := models.Member{}
+		err := rows.Scan(&newMember.ID, &newMember.Name, &newMember.Email,
+			&newMember.CreatedAt, &newMember.UpdatedAt)
 		if err != nil {
 			return members, err
 		}
 
-		members = append(members, m)
+		// get aliases
+		newMember.Aliases, err = m.getAliasesByMemberID(newMember.ID)
+		if err != nil {
+			return members, err
+		}
+
+		members = append(members, newMember)
 	}
 	err := rows.Err()
 	if err != nil {
@@ -134,7 +140,7 @@ func (m *postgresDBRepo) AllMembers() ([]models.Member, error) {
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return scanRowsToMembers(rows)
+	return m.scanRowsToMembers(rows)
 }
 
 // GetMemberByActive returns a slice of all members that have status = active. Does not populate member aliases
@@ -152,7 +158,7 @@ func (m *postgresDBRepo) GetMemberByActive(active bool) ([]models.Member, error)
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return scanRowsToMembers(rows)
+	return m.scanRowsToMembers(rows)
 }
 
 // GetMemberByID returns one member from a given id, populates aliases
@@ -176,19 +182,37 @@ func (m *postgresDBRepo) GetMemberByID(id int) (models.Member, error) {
 	}
 
 	// get member aliases
-	q = fmt.Sprintf(`SELECT id, %s FROM member_aliases WHERE member_id = $1`, aliasCols)
-	rows, err := m.DB.QueryContext(ctx, q, id)
+	v.Aliases, err = m.getAliasesByMemberID(id)
 	if err != nil {
 		return v, err
+	}
+	// q = fmt.Sprintf(`SELECT id, %s FROM member_aliases WHERE member_id = $1`, aliasCols)
+	// rows, err := m.DB.QueryContext(ctx, q, id)
+	// if err != nil {
+	// 	return v, err
+	// }
+	// defer rows.Close()
+
+	// v.Aliases, err = scanRowsToMemberAliases(rows)
+	// if err != nil {
+	// 	return v, err
+	// }
+
+	return v, nil
+}
+
+func (m *postgresDBRepo) getAliasesByMemberID(id int) ([]models.MemberAlias, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := fmt.Sprintf(`SELECT id, %s FROM member_aliases WHERE member_id = $1`, aliasCols)
+	rows, err := m.DB.QueryContext(ctx, q, id)
+	if err != nil {
+		return nil, err
 	}
 	defer rows.Close()
 
-	v.Aliases, err = scanRowsToMemberAliases(rows)
-	if err != nil {
-		return v, err
-	}
-
-	return v, nil
+	return scanRowsToMemberAliases(rows)
 }
 
 // UpdateMember updates a member in the database
