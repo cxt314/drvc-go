@@ -75,10 +75,10 @@
                                     </div>
                                     <div class="col">
                                         <div class="form-group mt-3">
-                                            <label for="end-mileage">End (last 3 digits):</label>
+                                            <label for="end-mileage-input">End (last 3 digits):</label>
                                             <input class="form-control"
-                                                id="end-mileage" autocomplete="off" type='number'
-                                                name='end-mileage' min="0" max="999" required>
+                                                id="end-mileage-input" autocomplete="off" type='number'
+                                                name='end-mileage-input' min="0" max="999" required>
                                         </div>
                                     </div>
                                     <div class="col">
@@ -170,6 +170,7 @@
 {{define "js"}}
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 <script>
+    // multi-rider selection
     new TomSelect('#riders',{
         hideSelected: false,
         duplicates: true,
@@ -190,5 +191,31 @@
             }
         },
     })
+</script>
+
+ <script>
+    function generateFullOdometerValue() {
+        // Get the prefix and last three digits.
+        const startMileageFull = document.getElementById('start-mileage').value;
+        const endThreeDigits = document.getElementById('end-mileage-input').value;
+        
+        // Reconstruct the full odometer value.
+        const endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + parseInt(endThreeDigits);
+        // TODO: add checks for situations when the mileage rolls over from the thousands
+
+        // Add the new value to the form as a hidden field before submission.
+        const newHiddenInput = document.createElement('input');
+        newHiddenInput.type = 'hidden';
+        newHiddenInput.name = 'end-mileage';
+        newHiddenInput.value = endMileageFull;
+        document.querySelector('form').appendChild(newHiddenInput);
+
+        // Basic validation: ensure the new value is not less than the previous one.
+        if (endMileageFull < parseInt(startMileageFull)) {
+            alert("New odometer reading cannot be less than the previous one.");
+            // Prevent form submission if validation fails.
+            return false; 
+        }
+    }
 </script>
 {{end}}
