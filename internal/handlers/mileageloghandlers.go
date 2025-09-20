@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -248,11 +247,28 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+		return
 	}
-	fmt.Println(r.Form)
+
+	// get mileage log from database
+	v, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	t := models.Trip{}
+	// parse form into trip
+	err = helpers.ParseFormToTrip(r, &t, v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
 	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 

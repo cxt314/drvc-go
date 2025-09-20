@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -112,18 +113,56 @@ func ParseFormToMileageLog(r *http.Request, v *models.MileageLog) error {
 		return err
 	}
 
-	// parse trips
-	// clear out trips
-	v.Trips = []models.Trip{}
+	return nil
+}
 
-	formTrips := r.Form["trips"]
-	for _, a := range formTrips {
-		if a != "" {
-			// TODO: parse 'a' into a Trip struct
-			v.Trips = append(v.Trips, models.Trip{})
-		}
+func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
 	}
-	//log.Println(v)
 
+	v.MileageLog = log
+
+	// parse number fields
+	v.StartMileage, err = strconv.Atoi(r.Form.Get("start-mileage"))
+	if err != nil {
+		return err
+	}
+
+	v.EndMileage, err = strconv.Atoi(r.Form.Get("end-mileage"))
+	if err != nil {
+		return err
+	}
+
+	// build TripDate from trip-day form input & mileage log year/month
+	tripDay, err := strconv.Atoi(r.Form.Get("trip-day"))
+	if err != nil {
+		return err
+	}
+
+	v.TripDate, err = time.Parse(date_layout, fmt.Sprintf("%d-%02d-%02d", log.Year, log.Month, tripDay))
+	if err != nil {
+		return err
+	}
+
+	// process riders
+	riders := r.Form["riders"]
+	fmt.Println(riders)
+	for _, riderID := range riders {
+		newRider := models.Member{}
+		newRider.ID, err = strconv.Atoi(riderID)
+		if err != nil {
+			return err
+		}
+
+		v.Riders = append(v.Riders, newRider)
+	}
+
+	// parse string fields
+	v.Destination = r.Form.Get("destination")
+	v.Purpose = r.Form.Get("purpose")
+
+	//fmt.Println(v)
 	return nil
 }
