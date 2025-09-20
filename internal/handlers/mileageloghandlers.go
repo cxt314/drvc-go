@@ -269,7 +269,13 @@ func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	_, err = m.DB.InsertTrip(t)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d/edit-trips", id), http.StatusSeeOther)
 }
 
 // calcLastOdometerValue takes a mileage log and calculates

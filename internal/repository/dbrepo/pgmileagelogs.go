@@ -23,7 +23,7 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) (int, error) {
 		defer cancel()
 
 		var lastInsertId int
-		// insert into members table & return inserted member id
+		// insert into mileage_logs table & return inserted mileage_log id
 		stmt := fmt.Sprintf(`INSERT INTO mileage_logs (%s)
 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 				RETURNING id`,
@@ -38,38 +38,75 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) (int, error) {
 		}
 
 		// insert trips into trips table
-		for _, a := range v.Trips {
-			err := insertTripsTx(tx, ctx, lastInsertId, a)
+		// for _, a := range v.Trips {
+		// 	err := insertTripsTx(tx, ctx, lastInsertId, a)
 
+		// 	if err != nil {
+		// 		return 0, err
+		// 	}
+
+		// }
+
+		return lastInsertId, nil
+	})
+}
+
+func (m *postgresDBRepo) InsertTrip(v models.Trip) (int, error) {
+	return runInTxReturnID(m.DB, func(tx *sql.Tx) (int, error) {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
+
+		var lastInsertId int
+
+		// insert into trips table & return trip-id
+		stmt := fmt.Sprintf(`INSERT INTO trips (%s)
+					VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+					RETURNING id`,
+			tripCols)
+
+		err := tx.QueryRowContext(ctx, stmt,
+			v.MileageLog.ID, v.TripDate, v.StartMileage, v.EndMileage,
+			v.IsLongDistance, v.Destination, v.Purpose,
+			time.Now(), time.Now(),
+		).Scan(&lastInsertId)
+		if err != nil {
+			return 0, err
+		}
+
+		// insert into riders table
+		for _, member := range v.Riders {
+			stmt := fmt.Sprintf(`INSERT INTO riders(%s)
+							VALUES ($1, $2, $3, $4)`, riderCols)
+
+			_, err := tx.ExecContext(ctx, stmt, lastInsertId, member.ID, time.Now(), time.Now())
 			if err != nil {
 				return 0, err
 			}
-
 		}
 
 		return lastInsertId, nil
 	})
 }
 
-// insertTripsTx takes a transaction and inserts a Trip into the database
-func insertTripsTx(tx *sql.Tx, ctx context.Context, mileage_log_id int, v models.Trip) error {
-	stmt := fmt.Sprintf(`INSERT INTO trips (%s)
-				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		aliasCols)
+// // insertTripsTx takes a transaction and inserts a Trip into the database
+// func insertTripsTx(tx *sql.Tx, ctx context.Context, mileage_log_id int, v models.Trip) error {
+// 	stmt := fmt.Sprintf(`INSERT INTO trips (%s)
+// 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+// 		aliasCols)
 
-	_, err := tx.ExecContext(ctx, stmt,
-		mileage_log_id, v.TripDate, v.StartMileage, v.EndMileage,
-		v.IsLongDistance, v.Destination, v.Purpose,
-		time.Now(), time.Now(),
-	)
-	if err != nil {
-		return err
-	}
+// 	_, err := tx.ExecContext(ctx, stmt,
+// 		mileage_log_id, v.TripDate, v.StartMileage, v.EndMileage,
+// 		v.IsLongDistance, v.Destination, v.Purpose,
+// 		time.Now(), time.Now(),
+// 	)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// TODO: insert riders for a trip
+// 	// TODO: insert riders for a trip
 
-	return nil
-}
+// 	return nil
+// }
 
 // scanRowsToMileageLogs takes a pointer to *sql.Rows and scans those values into a slice of MileageLogs
 func scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {

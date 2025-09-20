@@ -148,7 +148,7 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 
 	// process riders
 	riders := r.Form["riders"]
-	fmt.Println(riders)
+	//fmt.Println(riders)
 	for _, riderID := range riders {
 		newRider := models.Member{}
 		newRider.ID, err = strconv.Atoi(riderID)
