@@ -2,6 +2,21 @@
 
 {{define "title"}}Edit Trips{{end}}
 
+{{define "css"}}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+
+<style>
+    .ts-wrapper .option .name {
+        display: block;
+    }
+    .ts-wrapper .option .aliases {
+        font-size: 12px;
+        display: block;
+        color: #a0a0a0;
+    }
+</style>
+{{end}}
+
 {{define "content"}}
     <div class="container">
         {{ $v := index .Data "mileage-log" }}
@@ -39,7 +54,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <form method="post" action="#" class="" novalidate>
+                            <form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>
                                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                                 <div class="row">
                                     <div class="col">
@@ -98,18 +113,14 @@
                                 </div>
                                 <div class="row">
                                     <div class="col">
-                                        <div class="col-3 mb-2 rider-group">
-                                            <div class="input-group">
-                                                <input class="form-control" type="text" name="riders">
-                                                <span class="input-group-text">
-                                                    <button type="button" class="btn-close" aria-label="Close"
-                                                        hx-get="/remove-item" hx-trigger="click" hx-target="closest .rider-group" hx-swap="outerHTML" hx-confirm="Delete rider?"></button>
-                                                </span>
-                                            </div>
-                                        </div>
+                                        <select id="riders" name="riders" placeholder="Select riders..." multiple required></select>
                                     </div>
                                 </div>
-
+                                <div class="row mt-2">
+                                    <div class="col">
+                                        <input type="submit" class="btn btn-primary" value="Save Trip">
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -156,3 +167,28 @@
     </div>
 {{end}}
 
+{{define "js"}}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+<script>
+    new TomSelect('#riders',{
+        hideSelected: false,
+        duplicates: true,
+        options: [
+            {id: 1, name: "Connie", aliases: "CXT, Test"},
+            {id: 2, name: "Cob", aliases: "David"},
+
+        ],
+        labelField: 'name',
+        searchField: ['name', 'aliases'],
+        valueField: 'id',
+        render: {
+            option: function(data, escape) {
+                return '<div>' +
+					'<span class="name">' + escape(data.name) + '</span>' +
+					'<span class="aliases">AKA: ' + escape(data.aliases) + '</span>' +
+				'</div>';
+            }
+        },
+    })
+</script>
+{{end}}

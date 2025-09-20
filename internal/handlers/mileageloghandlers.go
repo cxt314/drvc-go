@@ -222,6 +222,8 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: get Members from database & send as json for rider selection
+
 	// get mileage log from database
 	data := make(map[string]interface{})
 	v, err := m.DB.GetMileageLogByID(id)
@@ -232,6 +234,7 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 
 	data["mileage-log"] = v
 
+	// calculate last odometer value from trips & mileage log start odometer
 	intmap := make(map[string]int)
 	intmap["last-odometer-value"] = calcLastOdometerValue(v)
 
