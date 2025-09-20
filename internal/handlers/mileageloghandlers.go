@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -239,24 +240,28 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	intmap["last-odometer-value"] = calcLastOdometerValue(v)
 
 	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", &models.TemplateData{
-		Form: forms.New(nil),
-		Data: data,
+		Form:   forms.New(nil),
+		Data:   data,
 		IntMap: intmap,
 	})
 
 }
 
 func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
-
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(r.Form)
 	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
-// calcLastOdometerValue takes a mileage log and calculates  
+// calcLastOdometerValue takes a mileage log and calculates
 // the last odometer value from trips entered
 func calcLastOdometerValue(log models.MileageLog) int {
 	if len(log.Trips) == 0 {
 		// if there are no trips yet, return StartOdometer from the mileage log
-		return log.StartOdometer 
+		return log.StartOdometer
 	}
-	return log.Trips[len(log.Trips)-1].EndMileage 
+	return log.Trips[len(log.Trips)-1].EndMileage
 }
