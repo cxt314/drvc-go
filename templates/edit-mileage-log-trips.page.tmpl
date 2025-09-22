@@ -63,11 +63,11 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col">
-                            <table class="table table-sm table-striped">
+                            <table id="trip-list" class="table table-sm table-striped">
                                 <thead>
                                     {{template "tripHeader" .}}
                                 </thead>
-                                <tbody id="trip-list">
+                                <tbody>
                                     {{range $v.Trips}}
                                     {{template "tripRow" .}}
                                     {{ end }}

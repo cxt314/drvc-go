@@ -88,26 +88,6 @@ func (m *postgresDBRepo) InsertTrip(v models.Trip) (int, error) {
 	})
 }
 
-// // insertTripsTx takes a transaction and inserts a Trip into the database
-// func insertTripsTx(tx *sql.Tx, ctx context.Context, mileage_log_id int, v models.Trip) error {
-// 	stmt := fmt.Sprintf(`INSERT INTO trips (%s)
-// 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-// 		aliasCols)
-
-// 	_, err := tx.ExecContext(ctx, stmt,
-// 		mileage_log_id, v.TripDate, v.StartMileage, v.EndMileage,
-// 		v.IsLongDistance, v.Destination, v.Purpose,
-// 		time.Now(), time.Now(),
-// 	)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// TODO: insert riders for a trip
-
-// 	return nil
-// }
-
 // scanRowsToMileageLogs takes a pointer to *sql.Rows and scans those values into a slice of MileageLogs
 func scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {
 	var logs []models.MileageLog
@@ -226,18 +206,6 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 	}
 	v.Vehicle = tmpVehicle
 
-	// get trips
-	// q = fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1`, tripCols)
-	// rows, err := m.DB.QueryContext(ctx, q, id)
-	// if err != nil {
-	// 	return v, err
-	// }
-	// defer rows.Close()
-
-	// v.Trips, err = m.scanRowsToTrips(rows)
-	// if err != nil {
-	// 	return v, err
-	// }
 	v.Trips, err = m.GetTripsByMileageLogID(id)
 	if err != nil {
 		return v, err
@@ -369,4 +337,34 @@ func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Tr
 
 	// process query result into slice of members to return
 	return m.scanRowsToTrips(rows)
+}
+
+// GetTripByID returns one trip from a given id
+func (m *postgresDBRepo) GetTripByID(id int) (models.Trip, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := fmt.Sprintf(`SELECT id, %s FROM trips
+		WHERE id = $1`, tripCols)
+
+	// execute our DB query
+	row := m.DB.QueryRowContext(ctx, q, id)
+
+	// scan single db row into trip model
+	t := models.Trip{}
+	err := row.Scan(&t.ID, &t.MileageLog.ID, &t.TripDate, &t.StartMileage,
+		&t.EndMileage, &t.IsLongDistance, &t.Destination, &t.Purpose,
+		&t.CreatedAt, &t.UpdatedAt)
+	if err != nil {
+		return t, err
+	}
+
+	riders, err := m.getRidersByTripID(t.ID)
+	if err != nil {
+		return t, err
+	}
+
+	t.Riders = riders
+
+	return t, nil
 }

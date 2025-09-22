@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -279,35 +280,6 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	td.Form = forms.New(nil)
 
 	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", td)
-	// // get mileage log from database
-	// data := make(map[string]interface{})
-	// v, err := m.DB.GetMileageLogByID(id)
-	// if err != nil {
-	// 	helpers.ServerError(w, err)
-	// 	return
-	// }
-
-	// data["mileage-log"] = v
-
-	// // get Members from database & send as TomSelect compatible for rider selection
-	// members, err := m.DB.GetMemberByActive(true)
-	// if err != nil {
-	// 	helpers.ServerError(w, err)
-	// 	return
-	// }
-
-	// data["member-options"] = createRiderOptionsTomSelect(members)
-
-	// // calculate last odometer value from trips & mileage log start odometer
-	// intmap := make(map[string]int)
-	// intmap["last-odometer-value"] = calcLastOdometerValue(v)
-
-	// render.Template(w, r, "edit-mileage-log-trips.page.tmpl", &models.TemplateData{
-	// 	Form:   forms.New(nil),
-	// 	Data:   data,
-	// 	IntMap: intmap,
-	// })
-
 }
 
 func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
@@ -342,21 +314,70 @@ func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d/edit-trips", id), http.StatusSeeOther)
 }
 
+// AddTripPost is the HTMX route that inserts a new trip
+// On successful insert, returns a new trip form & the table row of the new trip
+// If unsuccessful, returns the trip form with data & errors
 func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	html := `
-		<div class="col-3 mb-2 alias-group">
-			<div class="input-group">
-				<input class="form-control" type="text" name="aliases">
-				<span class="input-group-text">
-					<button type="button" class="btn-close" aria-label="Close"
-						hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
-				</span>
-			</div>
-		</div>
-		`
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	w.Write([]byte(html))
+	w.Header().Set("Content-Type", "text/html")
+
+	// get mileage log from database
+	v, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	t := models.Trip{}
+	// parse form into trip
+	err = helpers.ParseFormToTrip(r, &t, v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	form := forms.New(r.PostForm)
+	// do form validation checks
+
+	// if there were errors, only generate the partial form w/ errors
+	if !form.Valid() {
+		td, err := m.getTripEditTemplateData(id)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		td.Form = form
+		render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
+		return
+	}
+
+	_, err = m.DB.InsertTrip(t)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	td, err := m.getTripEditTemplateData(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// create HTMX response
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripTableSwap", td)
+
+	fmt.Println(buf.String())
+
+	buf.WriteTo(w)
 }
 
 // calcLastOdometerValue takes a mileage log and calculates

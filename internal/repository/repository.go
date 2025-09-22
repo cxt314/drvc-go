@@ -29,4 +29,5 @@ type DatabaseRepo interface {
 	UpdateMileageLog(v models.MileageLog) error
 	DeleteMileageLog(id int) error
 	InsertTrip(v models.Trip) (int, error)
+	GetTripByID(id int) (models.Trip, error)
 }

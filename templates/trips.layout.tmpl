@@ -101,8 +101,16 @@
 </tr>
 {{end}}
 
-{{define "tripRowSwap"}}
-<tbody hx-swap-oob="afterbegin:#trip-list tbody">
-    {{template "tripRow" .}}
-</tbody>
+{{define "tripTableSwap"}}
+{{ $v := index .Data "mileage-log" }}
+<table id="trip-list" hx-swap-oob="true" class="table table-sm table-striped">
+    <thead>
+        {{template "tripHeader" .}}
+    </thead>
+    <tbody>
+        {{range $v.Trips}}
+        {{template "tripRow" .}}
+        {{ end }}
+    </tbody>
+</table>
 {{end}}

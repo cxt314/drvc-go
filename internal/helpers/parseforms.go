@@ -121,7 +121,7 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 	if err != nil {
 		return err
 	}
-	fmt.Println(r.Form)
+	//fmt.Println(r.Form)
 
 	v.MileageLog = log
 
