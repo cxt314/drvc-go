@@ -131,11 +131,13 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 		return err
 	}
 
-	// TODO: switch back to "end-mileage" once js is being called
-	v.EndMileage, err = strconv.Atoi(r.Form.Get("end-mileage-input"))
+	v.EndMileage, err = strconv.Atoi(r.Form.Get("end-mileage"))
 	if err != nil {
 		return err
 	}
+
+	// check long-distance checkbox
+	v.IsLongDistance = r.Form.Get("is-ld") == "ld"
 
 	// build TripDate from trip-day form input & mileage log year/month
 	tripDay, err := strconv.Atoi(r.Form.Get("trip-day"))

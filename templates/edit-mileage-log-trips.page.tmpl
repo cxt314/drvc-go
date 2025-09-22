@@ -85,26 +85,36 @@
 {{define "js"}}
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 <script>
-    // multi-rider selection
-    new TomSelect('#riders',{
-        hideSelected: false,
-        duplicates: true,
-        options: [
-            {{ index .Data "member-options" }}
-
-        ],
-        labelField: 'name',
-        searchField: ['name', 'aliases'],
-        valueField: 'id',
-        render: {
-            option: function(data, escape) {
-                return '<div>' +
-					'<span class="name">' + escape(data.name) + '</span>' +
-					'<span class="aliases">AKA: ' + escape(data.aliases) + '</span>' +
-				'</div>';
-            }
-        },
+    htmx.onLoad(function(elt) {
+        // look up #riders element
+        var allSelects = htmx.findAll(elt, "#riders")
+        for(select of allSelects) {
+            rider_select_init(select)
+        }
     })
+
+    function rider_select_init(el) {
+        // multi-rider selection
+        new TomSelect(el,{
+            hideSelected: false,
+            duplicates: true,
+            options: [
+                {{ index .Data "member-options" }}
+
+            ],
+            labelField: 'name',
+            searchField: ['name', 'aliases'],
+            valueField: 'id',
+            render: {
+                option: function(data, escape) {
+                    return '<div>' +
+                        '<span class="name">' + escape(data.name) + '</span>' +
+                        '<span class="aliases">AKA: ' + escape(data.aliases) + '</span>' +
+                    '</div>';
+                }
+            },
+        })
+    }
 </script>
 
 <script>
