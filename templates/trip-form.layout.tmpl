@@ -1,0 +1,71 @@
+{{define "tripForm" }}
+{{ $v := index .Data "mileage-log" }}
+<form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="row">
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="trip-day">Day:</label>
+                <input class="form-control"
+                    id="trip-day" autocomplete="off" type='number'
+                    name='trip-day' min="1" max="31" required>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="start-mileage">Start:</label>
+                <input class="form-control"
+                    id="start-mileage" autocomplete="off" type='number'
+                    name='start-mileage' min="0" max="999" value="{{ index .IntMap "last-odometer-value" }}" readonly>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="end-mileage-input">End (last 3 digits):</label>
+                <input class="form-control"
+                    id="end-mileage-input" autocomplete="off" type='number'
+                    name='end-mileage-input' min="0" max="999" required>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="destination">Destination:</label>
+                <input class="form-control"
+                    id="destination" autocomplete="off" type='text'
+                    name='destination' >
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="purpose">Purpose:</label>
+                <input class="form-control"
+                    id="purpose" autocomplete="off" type='text'
+                    name='purpose' >
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group mt-3">
+                <label for="is-ld">LD?:</label>
+                <input class="form-check-input"
+                    id="is-ld" autocomplete="off" type='checkbox'
+                    name='is-ld' value="ld" >
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="riders">Riders:</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <select id="riders" name="riders" placeholder="Select riders..." multiple required></select>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col">
+            <input type="submit" class="btn btn-primary" value="Save Trip">
+        </div>
+    </div>
+</form>
+{{end}}

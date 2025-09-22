@@ -303,6 +303,23 @@ func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d/edit-trips", id), http.StatusSeeOther)
 }
 
+func (m *Repository) AddTrip(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	html := `
+		<div class="col-3 mb-2 alias-group">
+			<div class="input-group">
+				<input class="form-control" type="text" name="aliases">
+				<span class="input-group-text">
+					<button type="button" class="btn-close" aria-label="Close"
+						hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
+				</span>
+			</div>
+		</div>
+		`
+
+	w.Write([]byte(html))
+}
+
 // calcLastOdometerValue takes a mileage log and calculates
 // the last odometer value from trips entered
 func calcLastOdometerValue(log models.MileageLog) int {

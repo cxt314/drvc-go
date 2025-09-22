@@ -121,6 +121,7 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 	if err != nil {
 		return err
 	}
+	fmt.Println(r.Form)
 
 	v.MileageLog = log
 
@@ -130,7 +131,8 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 		return err
 	}
 
-	v.EndMileage, err = strconv.Atoi(r.Form.Get("end-mileage"))
+	// TODO: switch back to "end-mileage" once js is being called
+	v.EndMileage, err = strconv.Atoi(r.Form.Get("end-mileage-input"))
 	if err != nil {
 		return err
 	}
