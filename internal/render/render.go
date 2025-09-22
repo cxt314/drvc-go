@@ -7,16 +7,23 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/justinas/nosurf"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"fdate": formatDate,
+}
 
 var app *config.AppConfig
 var pathToTemplates = "./templates"
+
+func formatDate(t time.Time, layout string) string {
+	return t.Format(layout)
+}
 
 // NewRenderer sets the config for the template package
 func NewRenderer(a *config.AppConfig) {
