@@ -1,6 +1,7 @@
 {{define "tripForm" }}
 {{ $v := index .Data "mileage-log" }}
-<form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>
+<!--<form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>-->
+<form hx-post="/mileage-logs/{{$v.ID}}/add-trip" hx-trigger="submit" hx-swap="outerHTML" onsubmit="generateFullOdometerValue()" novalidate>
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <div class="row">
         <div class="col">
@@ -70,6 +71,19 @@
 </form>
 {{end}}
 
+{{define "tripHeader"}}
+<tr>
+    <th scope="col">Day</th>
+    <th scope="col">Start</th>
+    <th scope="col">End</th>
+    <th scope="col">LD?</th>
+    <th scope="col">Riders</th>
+    <th scope="col">Destination</th>
+    <th scope="col">Purpose</th>
+    <th scope="col"></th>
+</tr>
+{{end}}
+
 {{define "tripRow"}}
 <tr>
     <td>{{ .TripDate.Format "2006-01-02" }}</td>
@@ -85,4 +99,10 @@
     <td> {{ .Purpose }}</td>
     <td> Edit </td>
 </tr>
+{{end}}
+
+{{define "tripRowSwap"}}
+<tbody hx-swap-oob="afterbegin:#trip-list tbody">
+    {{template "tripRow" .}}
+</tbody>
 {{end}}

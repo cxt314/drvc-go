@@ -65,16 +65,7 @@
                         <div class="col">
                             <table class="table table-sm table-striped">
                                 <thead>
-                                    <tr>
-                                        <th scope="col">Day</th>
-                                        <th scope="col">Start</th>
-                                        <th scope="col">End</th>
-                                        <th scope="col">LD?</th>
-                                        <th scope="col">Riders</th>
-                                        <th scope="col">Destination</th>
-                                        <th scope="col">Purpose</th>
-                                        <th scope="col"></th>
-                                    </tr>
+                                    {{template "tripHeader" .}}
                                 </thead>
                                 <tbody id="trip-list">
                                     {{range $v.Trips}}

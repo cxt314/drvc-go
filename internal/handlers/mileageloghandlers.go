@@ -232,6 +232,36 @@ func createRiderOptionsTomSelect(members []models.Member) template.JS {
 	return template.JS(optString)
 }
 
+func (m *Repository) getTripEditTemplateData(mileageLogId int) (*models.TemplateData, error) {
+	td := models.TemplateData{}
+
+	// get mileage log from database
+	data := make(map[string]interface{})
+	v, err := m.DB.GetMileageLogByID(mileageLogId)
+	if err != nil {
+		return &td, err
+	}
+
+	data["mileage-log"] = v
+
+	// get Members from database & send as TomSelect compatible for rider selection
+	members, err := m.DB.GetMemberByActive(true)
+	if err != nil {
+		return &td, err
+	}
+
+	data["member-options"] = createRiderOptionsTomSelect(members)
+
+	td.Data = data
+
+	// calculate last odometer value from trips & mileage log start odometer
+	intmap := make(map[string]int)
+	intmap["last-odometer-value"] = calcLastOdometerValue(v)
+
+	td.IntMap = intmap
+	return &td, nil
+}
+
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
 	id, err := strconv.Atoi(exploded[2])
@@ -240,34 +270,43 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// get mileage log from database
-	data := make(map[string]interface{})
-	v, err := m.DB.GetMileageLogByID(id)
+	td, err := m.getTripEditTemplateData(id)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
 
-	data["mileage-log"] = v
+	td.Form = forms.New(nil)
 
-	// get Members from database & send as TomSelect compatible for rider selection
-	members, err := m.DB.GetMemberByActive(true)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
+	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", td)
+	// // get mileage log from database
+	// data := make(map[string]interface{})
+	// v, err := m.DB.GetMileageLogByID(id)
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
 
-	data["member-options"] = createRiderOptionsTomSelect(members)
+	// data["mileage-log"] = v
 
-	// calculate last odometer value from trips & mileage log start odometer
-	intmap := make(map[string]int)
-	intmap["last-odometer-value"] = calcLastOdometerValue(v)
+	// // get Members from database & send as TomSelect compatible for rider selection
+	// members, err := m.DB.GetMemberByActive(true)
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
 
-	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", &models.TemplateData{
-		Form:   forms.New(nil),
-		Data:   data,
-		IntMap: intmap,
-	})
+	// data["member-options"] = createRiderOptionsTomSelect(members)
+
+	// // calculate last odometer value from trips & mileage log start odometer
+	// intmap := make(map[string]int)
+	// intmap["last-odometer-value"] = calcLastOdometerValue(v)
+
+	// render.Template(w, r, "edit-mileage-log-trips.page.tmpl", &models.TemplateData{
+	// 	Form:   forms.New(nil),
+	// 	Data:   data,
+	// 	IntMap: intmap,
+	// })
 
 }
 
@@ -303,7 +342,7 @@ func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d/edit-trips", id), http.StatusSeeOther)
 }
 
-func (m *Repository) AddTrip(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	html := `
 		<div class="col-3 mb-2 alias-group">

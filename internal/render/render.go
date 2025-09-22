@@ -39,6 +39,29 @@ func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateDa
 	return td
 }
 
+func PartialHTMX(buf *bytes.Buffer, r *http.Request, tmpl string, partial string, td *models.TemplateData) {
+	var tc map[string]*template.Template
+
+	if app.UseCache {
+		// get the template cache from the app config
+		tc = app.TemplateCache
+	} else {
+		tc, _ = CreateTemplateCache()
+	}
+
+	// get requested template from cache
+	t, ok := tc[tmpl]
+	if !ok {
+		log.Fatal("Could not get template from template cache")
+	}
+
+	td = AddDefaultData(td, r)
+	err := t.ExecuteTemplate(buf, partial, td)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 // Template renders templates using html/template
 func Template(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
