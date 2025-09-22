@@ -78,20 +78,7 @@
                                 </thead>
                                 <tbody id="trip-list">
                                     {{range $v.Trips}}
-                                    <tr>
-                                        <td>{{ .TripDate.Format "2006-01-02" }}</td>
-                                        <td> {{ .StartMileage }}</td>
-                                        <td> {{ .EndMileage }}</td>
-                                        <td> {{ if .IsLongDistance }}LD{{end}}</td>
-                                        <td> 
-                                            {{ range .Riders }}
-                                                [{{ .Name }}]
-                                            {{ end }}
-                                        </td>
-                                        <td> {{ .Destination }}</td>
-                                        <td> {{ .Purpose }}</td>
-                                        <td> Edit </td>
-                                    </tr>
+                                    {{template "tripRow" .}}
                                     {{ end }}
                                 </tbody>
                             </table>
