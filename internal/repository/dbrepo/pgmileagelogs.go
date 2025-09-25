@@ -328,7 +328,7 @@ func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Tr
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id=$1 ORDER BY start_mileage DESC`, tripCols)
+	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id=$1 ORDER BY start_mileage DESC, trip_date DESC`, tripCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, mileage_log_id)

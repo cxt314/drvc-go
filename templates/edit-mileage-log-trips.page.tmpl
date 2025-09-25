@@ -124,8 +124,11 @@
         const endThreeDigits = document.getElementById('end-mileage-input').value;
         
         // Reconstruct the full odometer value.
-        const endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + parseInt(endThreeDigits);
-        // TODO: add checks for situations when the mileage rolls over from the thousands
+        let endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + parseInt(endThreeDigits);
+        // if last three digits of end mileage is less than last three digits of start mileage, add 1000 to full mileage
+        if (endThreeDigits < (startMileageFull % 1000)) {
+            endMileageFull = endMileageFull + 1000;
+        }
 
         // Add the new value to the form as a hidden field before submission.
         const newHiddenInput = document.createElement('input');
