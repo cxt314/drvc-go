@@ -387,5 +387,5 @@ func calcLastOdometerValue(log models.MileageLog) int {
 		// if there are no trips yet, return StartOdometer from the mileage log
 		return log.StartOdometer
 	}
-	return log.Trips[len(log.Trips)-1].EndMileage
+	return log.Trips[0].EndMileage
 }

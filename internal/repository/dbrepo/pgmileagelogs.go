@@ -322,11 +322,13 @@ func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 	})
 }
 
+// GetTripsByMileageLogID returns a slice of Trips for a given mileage_log_id
+// Trips are ordered by start_mileage descending
 func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Trip, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id=$1`, tripCols)
+	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id=$1 ORDER BY start_mileage DESC`, tripCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, mileage_log_id)
