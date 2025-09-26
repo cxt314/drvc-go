@@ -335,7 +335,6 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	form := forms.New(r.PostForm)
 	// do form validation checks
-	fmt.Println(r.Form)
 	form.Required("trip-day", "start-mileage", "end-mileage", "end-mileage-input", "riders")
 
 	// if there were errors, only generate the partial form w/ errors
