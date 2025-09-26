@@ -325,18 +325,8 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html")
-
 	// get mileage log from database
 	v, err := m.DB.GetMileageLogByID(id)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	t := models.Trip{}
-	// parse form into trip
-	err = helpers.ParseFormToTrip(r, &t, v)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
@@ -345,6 +335,8 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	form := forms.New(r.PostForm)
 	// do form validation checks
+	fmt.Println(r.Form)
+	form.Required("trip-day", "start-mileage", "end-mileage", "end-mileage-input", "riders")
 
 	// if there were errors, only generate the partial form w/ errors
 	if !form.Valid() {
@@ -356,6 +348,17 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 
 		td.Form = form
 		render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
+		buf.WriteTo(w)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+
+	t := models.Trip{}
+	// parse form into trip
+	err = helpers.ParseFormToTrip(r, &t, v)
+	if err != nil {
+		helpers.ServerError(w, err)
 		return
 	}
 
@@ -371,6 +374,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	td.Form = forms.New(nil)
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripTableSwap", td)

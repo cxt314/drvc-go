@@ -6,11 +6,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/models"
 )
-
-// date_layout is the format we expect dates to be sent in as
-const date_layout = "2006-01-02" // 01/02 03:04:05PM '06 -0700
 
 func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	err := r.ParseForm()
@@ -33,7 +31,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	}
 
 	// parse purchase date string to *time.Time
-	tempPD, err := time.Parse(date_layout, r.Form.Get("purchase_date"))
+	tempPD, err := time.Parse(config.DateLayout, r.Form.Get("purchase_date"))
 	if err != nil {
 		return err
 	}
@@ -41,7 +39,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
 
 	// parse sale date string to *time.Time
-	tempSD, err := time.Parse(date_layout, r.Form.Get("sale_date"))
+	tempSD, err := time.Parse(config.DateLayout, r.Form.Get("sale_date"))
 	if err != nil {
 		return err
 	}
@@ -145,7 +143,7 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 		return err
 	}
 
-	v.TripDate, err = time.Parse(date_layout, fmt.Sprintf("%d-%02d-%02d", log.Year, log.Month, tripDay))
+	v.TripDate, err = time.Parse(config.DateLayout, fmt.Sprintf("%d-%02d-%02d", log.Year, log.Month, tripDay))
 	if err != nil {
 		return err
 	}

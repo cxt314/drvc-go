@@ -7,15 +7,21 @@
         <div class="col">
             <div class="form-group mt-3">
                 <label for="trip-day">Day:</label>
-                <input class="form-control"
+                {{with .Form.Errors.Get "trip-day"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-control" {{with .Form.Errors.Get "trip-day"}} is-invalid {{end}}
                     id="trip-day" autocomplete="off" type='number'
-                    name='trip-day' min="1" max="31" required>
+                    name='trip-day' min="1" max="31" value="{{.Form.Get "trip-day"}}" required>
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
                 <label for="start-mileage">Start:</label>
-                <input class="form-control"
+                {{with .Form.Errors.Get "start-mileage"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
                     id="start-mileage" autocomplete="off" type='number'
                     name='start-mileage' min="0" max="999" value="{{ index .IntMap "last-odometer-value" }}" readonly>
             </div>
@@ -23,31 +29,43 @@
         <div class="col">
             <div class="form-group mt-3">
                 <label for="end-mileage-input">End (last 3 digits):</label>
-                <input class="form-control"
+                {{with .Form.Errors.Get "end-mileage-input"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-control" {{with .Form.Errors.Get "end-mileage-input"}} is-invalid {{end}}
                     id="end-mileage-input" autocomplete="off" type='number'
-                    name='end-mileage-input' min="0" max="999" required>
+                    name='end-mileage-input' min="0" max="999" value="{{.Form.Get "end-mileage-input"}}" required>
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
                 <label for="destination">Destination:</label>
-                <input class="form-control"
+                {{with .Form.Errors.Get "destinationt"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-control" {{with .Form.Errors.Get "destination"}} is-invalid {{end}}
                     id="destination" autocomplete="off" type='text'
-                    name='destination' >
+                    name='destination' value="{{.Form.Get "destination"}}">
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
                 <label for="purpose">Purpose:</label>
-                <input class="form-control"
+                {{with .Form.Errors.Get "purpose"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-control" {{with .Form.Errors.Get "purpose"}} is-invalid {{end}}
                     id="purpose" autocomplete="off" type='text'
-                    name='purpose' >
+                    name='purpose' value="{{.Form.Get "purpose"}}">
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
-                <label for="is-ld">LD?:</label>
-                <input class="form-check-input"
+                <label class="form-check-label" for="is-ld">LD?:</label>
+                {{with .Form.Errors.Get "is-ld"}}
+                    <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input class="form-check-input" {{with .Form.Errors.Get "is-ld"}} is-invalid {{end}}
                     id="is-ld" autocomplete="off" type='checkbox'
                     name='is-ld' value="ld" >
             </div>
@@ -56,11 +74,15 @@
     <div class="row">
         <div class="col">
             <label for="riders">Riders:</label>
+            {{with .Form.Errors.Get "riders"}}
+                    <label class="text-danger">{{.}}</label>
+            {{end}}
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <select id="riders" name="riders" placeholder="Select riders..." multiple required></select>
+            <select id="riders" name="riders" {{with .Form.Errors.Get "riders"}} is-invalid {{end}}
+                placeholder="Select riders..." multiple required></select>
         </div>
     </div>
     <div class="row mt-2">
