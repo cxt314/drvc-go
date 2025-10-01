@@ -25,3 +25,13 @@ func ServerError(w http.ResponseWriter, err error) {
 	app.ErrorLog.Println(trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
+
+// func TripToURLValues(t models.Trip) (url.Values, error) {
+// 	v := url.Values{}
+
+// 	st := reflect.TypeOf(t)
+// 	for i := 0; i < st.NumField(); i++ {
+// 		field := st.Field(i)
+// 		v.Add(field.Tag.Get("form"), )
+// 	}
+// }

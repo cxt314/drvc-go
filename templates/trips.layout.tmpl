@@ -2,6 +2,7 @@
 {{ $v := index .Data "mileage-log" }}
 <!--<form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>-->
 <form hx-post="/mileage-logs/{{$v.ID}}/add-trip" hx-trigger="submit" hx-swap="outerHTML" onsubmit="generateFullOdometerValue()" novalidate>
+    {{ $t := index .Data "trip" }}
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <div class="row">
         <div class="col">
@@ -12,18 +13,18 @@
                 {{end}}
                 <input class="form-control" {{with .Form.Errors.Get "trip-day"}} is-invalid {{end}}
                     id="trip-day" autocomplete="off" type='number'
-                    name='trip-day' min="1" max="31" value="{{.Form.Get "trip-day"}}" required>
+                    name='trip-day' min="1" max="31" value="{{ if $t }}{{ $t.TripDate.Day }}{{else}}{{.Form.Get "trip-day"}}{{end}}" required>
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
-                <label for="start-mileage">Start:</label>
+                <label for="start-mileage">Start (readonly):</label>
                 {{with .Form.Errors.Get "start-mileage"}}
                     <label class="text-danger">{{.}}</label>
                 {{end}}
                 <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
                     id="start-mileage" autocomplete="off" type='number'
-                    name='start-mileage' min="0" max="999" value="{{ index .IntMap "last-odometer-value" }}" readonly>
+                    name='start-mileage' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" readonly>
             </div>
         </div>
         <div class="col">
@@ -34,18 +35,18 @@
                 {{end}}
                 <input class="form-control" {{with .Form.Errors.Get "end-mileage-input"}} is-invalid {{end}}
                     id="end-mileage-input" autocomplete="off" type='number'
-                    name='end-mileage-input' min="0" max="999" value="{{.Form.Get "end-mileage-input"}}" required>
+                    name='end-mileage-input' min="0" max="999" value="{{ if $t }}{{ $t.EndMileage }}{{else}}{{.Form.Get "end-mileage-input"}}{{end}}" required>
             </div>
         </div>
         <div class="col">
             <div class="form-group mt-3">
                 <label for="destination">Destination:</label>
-                {{with .Form.Errors.Get "destinationt"}}
+                {{with .Form.Errors.Get "destination"}}
                     <label class="text-danger">{{.}}</label>
                 {{end}}
                 <input class="form-control" {{with .Form.Errors.Get "destination"}} is-invalid {{end}}
                     id="destination" autocomplete="off" type='text'
-                    name='destination' value="{{.Form.Get "destination"}}">
+                    name='destination' value="{{ if $t }}{{ $t.Destination }}{{else}}{{.Form.Get "destination"}}{{end}}">
             </div>
         </div>
         <div class="col">
@@ -56,7 +57,7 @@
                 {{end}}
                 <input class="form-control" {{with .Form.Errors.Get "purpose"}} is-invalid {{end}}
                     id="purpose" autocomplete="off" type='text'
-                    name='purpose' value="{{.Form.Get "purpose"}}">
+                    name='purpose' value="{{ if $t }}{{ $t.Purpose }}{{else}}{{.Form.Get "purpose"}}{{end}}">
             </div>
         </div>
         <div class="col">
@@ -67,7 +68,7 @@
                 {{end}}
                 <input class="form-check-input" {{with .Form.Errors.Get "is-ld"}} is-invalid {{end}}
                     id="is-ld" autocomplete="off" type='checkbox'
-                    name='is-ld' value="ld" >
+                    name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
             </div>
         </div>
     </div>
@@ -82,7 +83,13 @@
     <div class="row">
         <div class="col">
             <select id="riders" name="riders" {{with .Form.Errors.Get "riders"}} is-invalid {{end}}
-                placeholder="Select riders..." multiple required></select>
+                placeholder="Select riders..." multiple required>
+            {{ if $t }}
+                {{range $t.Riders }}
+                    <option value="{{.ID}}" selected>{{.Name}}</option>
+                {{end}}
+            {{ end }}
+            </select>
         </div>
     </div>
     <div class="row mt-2">
@@ -91,6 +98,109 @@
         </div>
     </div>
 </form>
+{{end}}
+
+
+{{ define "tripEditForm" }}
+{{ $t := index .Data "trip" }}
+<td colspan="8">
+    <form hx-post="/trip-edit/{{$t.ID}}" hx-trigger="submit" hx-target="#trip-{{$t.ID}}" hx-swap="outerHTML" novalidate>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <div class="row">
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label for="trip-day">Day:</label>
+                    {{with .Form.Errors.Get "trip-day"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" {{with .Form.Errors.Get "trip-day"}} is-invalid {{end}}
+                        id="trip-day" autocomplete="off" type='number'
+                        name='trip-day' min="1" max="31" value="{{ if $t }}{{ $t.TripDate.Day }}{{else}}{{.Form.Get "trip-day"}}{{end}}" required>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label for="start-mileage">Start (readonly):</label>
+                    {{with .Form.Errors.Get "start-mileage"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
+                        id="start-mileage" autocomplete="off" type='number'
+                        name='start-mileage' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" readonly>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label for="end-mileage">End:</label>
+                    {{with .Form.Errors.Get "end-mileage"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" {{with .Form.Errors.Get "end-mileage"}} is-invalid {{end}}
+                        id="end-mileage" autocomplete="off" type='number'
+                        name='end-mileage' min="0" max="999" value="{{ if $t }}{{ $t.EndMileage }}{{else}}{{.Form.Get "end-mileage"}}{{end}}" required>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label for="destination">Destination:</label>
+                    {{with .Form.Errors.Get "destination"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" {{with .Form.Errors.Get "destination"}} is-invalid {{end}}
+                        id="destination" autocomplete="off" type='text'
+                        name='destination' value="{{ if $t }}{{ $t.Destination }}{{else}}{{.Form.Get "destination"}}{{end}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label for="purpose">Purpose:</label>
+                    {{with .Form.Errors.Get "purpose"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-control" {{with .Form.Errors.Get "purpose"}} is-invalid {{end}}
+                        id="purpose" autocomplete="off" type='text'
+                        name='purpose' value="{{ if $t }}{{ $t.Purpose }}{{else}}{{.Form.Get "purpose"}}{{end}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group mt-3">
+                    <label class="form-check-label" for="is-ld">LD?:</label>
+                    {{with .Form.Errors.Get "is-ld"}}
+                        <label class="text-danger">{{.}}</label>
+                    {{end}}
+                    <input class="form-check-input" {{with .Form.Errors.Get "is-ld"}} is-invalid {{end}}
+                        id="is-ld" autocomplete="off" type='checkbox'
+                        name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="riders">Riders:</label>
+                {{with .Form.Errors.Get "riders"}}
+                        <label class="text-danger">{{.}}</label>
+                {{end}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <select id="riders" name="riders" {{with .Form.Errors.Get "riders"}} is-invalid {{end}}
+                    placeholder="Select riders..." multiple required>
+                {{ if $t }}
+                    {{range $t.Riders }}
+                        <option value="{{.ID}}" selected>{{.Name}}</option>
+                    {{end}}
+                {{ end }}
+                </select>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Update Trip">
+            </div>
+        </div>
+    </form>
+</td>
 {{end}}
 
 {{define "tripHeader"}}
@@ -107,7 +217,7 @@
 {{end}}
 
 {{define "tripRow"}}
-<tr>
+<tr id="trip-{{.ID}}">
     <td>{{ .TripDate.Format "2006-01-02" }}</td>
     <td> {{ .StartMileage }}</td>
     <td> {{ .EndMileage }}</td>
@@ -119,7 +229,11 @@
     </td>
     <td> {{ .Destination }}</td>
     <td> {{ .Purpose }}</td>
-    <td> Edit </td>
+    <td> 
+        <button hx-get="/trip-edit/{{.ID}}" hx-target="#trip-{{.ID}}" hx-swap="innerHTML" type="button" class="btn btn-primary">
+            Edit 
+        </button>
+    </td>
 </tr>
 {{end}}
 

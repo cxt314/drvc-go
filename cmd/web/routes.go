@@ -48,8 +48,9 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Post("/mileage-logs/{id}", handlers.Repo.MileageLogEditPost)
 	mux.Get("/mileage-logs/{id}/delete", handlers.Repo.MileageLogDelete)
 	mux.Get("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEdit)
-	mux.Post("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEditPost)
-	mux.Post("/mileage-logs/{id}/add-trip", handlers.Repo.AddTripPost)
+	//mux.Post("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEditPost)
+	mux.Post("/mileage-logs/{id}/add-trip", handlers.Repo.AddTripPost) // htmx handler
+	mux.Get("/trip-edit/{id}", handlers.Repo.EditTrip) // htmx handler
 
 	// htmx routes
 	mux.Get("/remove-item", handlers.Repo.RemoveItem)
