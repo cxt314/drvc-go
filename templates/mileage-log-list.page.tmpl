@@ -40,7 +40,7 @@ Mileage Logs
                     {{else}}
                         <ul>
                             {{ range $logs }}
-                                <li><a href="/mileage-logs/{{ .ID }}">{{ .Year }} - {{ .Month }}</a></li>
+                                <li><a href="/mileage-logs/{{ .ID }}/edit-trips">{{ .Year }} - {{ .Month }}</a></li>
                             {{ end }}
                         </ul>
                     {{end}}
