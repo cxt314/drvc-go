@@ -370,3 +370,76 @@ func (m *postgresDBRepo) GetTripByID(id int) (models.Trip, error) {
 
 	return t, nil
 }
+
+// UpdateTripByID updates a Trip & its Riders by trip id
+func (m *postgresDBRepo) UpdateTripByID(v models.Trip) error {
+	return runInTx(m.DB, func(tx *sql.Tx) error {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
+
+		// update trips table
+		stmt := `UPDATE trips SET
+					mileage_log_id = $1,
+					trip_date = $2,
+					start_mileage = $3,
+					end_mileage = $4,
+					is_long_distance = $5,
+					destination = $6,
+					purpose = $7,
+					updated_at = $8
+					WHERE id=$9`
+
+		_, err := tx.ExecContext(ctx, stmt,
+			v.MileageLog.ID,
+			v.TripDate,
+			v.StartMileage,
+			v.EndMileage,
+			v.IsLongDistance,
+			v.Destination,
+			v.Purpose,
+			time.Now(),
+			v.ID)
+		if err != nil {
+			return err
+		}
+
+		// delete riders by trip id
+		stmt = `DELETE FROM riders WHERE trip_id = $1`
+		_, err = tx.ExecContext(ctx, stmt, v.ID)
+		if err != nil {
+			return err
+		}
+
+		// insert into riders table
+		for _, member := range v.Riders {
+			stmt := fmt.Sprintf(`INSERT INTO riders(%s)
+							VALUES ($1, $2, $3, $4)`, riderCols)
+
+			_, err := tx.ExecContext(ctx, stmt, v.ID, member.ID, time.Now(), time.Now())
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func (m *postgresDBRepo) GetLaterTrips(v models.Trip) ([]models.Trip, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1 AND start_mileage >= $2 
+				ORDER BY start_mileage DESC, trip_date DESC`, tripCols)
+
+	// execute our DB query
+	rows, err := m.DB.QueryContext(ctx, q, v.MileageLog.ID, v.EndMileage)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// process query result into slice of members to return
+	return m.scanRowsToTrips(rows)
+
+}

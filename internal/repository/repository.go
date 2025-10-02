@@ -30,4 +30,6 @@ type DatabaseRepo interface {
 	DeleteMileageLog(id int) error
 	InsertTrip(v models.Trip) (int, error)
 	GetTripByID(id int) (models.Trip, error)
+	UpdateTripByID(v models.Trip) error 
+	GetLaterTrips(v models.Trip) ([]models.Trip, error)
 }

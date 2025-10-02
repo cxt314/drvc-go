@@ -398,7 +398,6 @@ func calcLastOdometerValue(log models.MileageLog) int {
 
 // EditTrip is the HTMX route that returns an edit trip form for a trip id
 func (m *Repository) EditTrip(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("In EditTrip")
 	exploded := strings.Split(r.RequestURI, "/")
 	id, err := strconv.Atoi(exploded[2])
 	if err != nil {
@@ -427,8 +426,106 @@ func (m *Repository) EditTrip(w http.ResponseWriter, r *http.Request) {
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditForm", td)
 
-	fmt.Println(buf.String())
+	//fmt.Println(buf.String())
 
 	buf.WriteTo(w)
 
+}
+
+// EditTripPost is the HTMX route that returns an edit trip form for a trip id
+func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
+
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+
+	// get trip by id
+	t, err := m.DB.GetTripByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// get later trips in case we need to update Start and End Mileages
+	originalEndMileage := t.EndMileage
+	laterTrips, err := m.DB.GetLaterTrips(t)
+
+	buf := new(bytes.Buffer)
+
+	form := forms.New(r.PostForm)
+
+	// do form validation checks
+	form.Required("trip-day", "start-mileage", "end-mileage", "riders")
+
+	// if there were errors, re-generate the partial form w/ errors
+	if !form.Valid() {
+		td, err := m.getTripEditTemplateData(t.MileageLog.ID)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+
+		td.Data["trip"] = t
+		td.Form = form
+		render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditForm", td)
+		buf.WriteTo(w)
+		return
+	}
+
+	v, err := m.DB.GetMileageLogByID(t.MileageLog.ID)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// parse form into trip
+	err = helpers.ParseFormToTrip(r, &t, v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// update trip
+	err = m.DB.UpdateTripByID(t)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	td := models.TemplateData{}
+	td.Data = make(map[string]interface{})
+
+	// re-fetch trip by id
+	t, err = m.DB.GetTripByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	err = m.updateFutureTripMileages(t, laterTrips, originalEndMileage)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	td.Data["trip"] = t
+	td.Form = forms.New(nil)
+
+	// create HTMX response
+	// TODO: update partial HTMX response to return full table in case other trip mileages needed to be updated
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripRowSwap", &td)
+
+	buf.WriteTo(w)
+
+}
+
+// updateFutureTripMileages updates subsequent start & end mileages when a trip is updated
+func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []models.Trip, originalEndMileage int) error {
+
+	return nil
 }
