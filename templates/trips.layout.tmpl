@@ -105,7 +105,7 @@
 {{ $t := index .Data "trip" }}
 <tr id="trip-{{$t.ID}}">
     <td colspan="8">
-        <form hx-post="/trip-edit/{{$t.ID}}" hx-trigger="submit" hx-target="#trip-{{$t.ID}}" hx-swap="outerHTML" novalidate>
+        <form hx-post="/trip-edit/{{$t.ID}}" hx-trigger="submit" hx-target="#trip-list" hx-swap="outerHTML" novalidate>
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
             <div class="row">
                 <div class="col">
@@ -247,6 +247,20 @@
 {{define "tripTableSwap"}}
 {{ $v := index .Data "mileage-log" }}
 <table id="trip-list" hx-swap-oob="true" class="table table-sm table-striped">
+    <thead>
+        {{template "tripHeader" .}}
+    </thead>
+    <tbody>
+        {{range $v.Trips}}
+        {{template "tripRow" .}}
+        {{ end }}
+    </tbody>
+</table>
+{{end}}
+
+{{define "tripEditTableSwap"}}
+{{ $v := index .Data "mileage-log" }}
+<table id="trip-list" class="table table-sm table-striped">
     <thead>
         {{template "tripHeader" .}}
     </thead>

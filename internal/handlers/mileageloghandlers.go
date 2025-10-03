@@ -510,22 +510,29 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	td := models.TemplateData{}
-	td.Data = make(map[string]interface{})
+	// td := models.TemplateData{}
+	// td.Data = make(map[string]interface{})
 
-	// re-fetch trip by id
-	t, err = m.DB.GetTripByID(id)
+	// // re-fetch trip by id
+	// t, err = m.DB.GetTripByID(id)
+	// if err != nil {
+	// 	helpers.ServerError(w, err)
+	// 	return
+	// }
+
+	// td.Data["trip"] = t
+	td, err := m.getTripEditTemplateData(t.MileageLog.ID)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
 
-	td.Data["trip"] = t
 	td.Form = forms.New(nil)
 
 	// create HTMX response
 	// TODO: update partial HTMX response to return full table in case other trip mileages needed to be updated
-	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripRowSwap", &td)
+	//render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripRowSwap", &td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwap", td)
 
 	buf.WriteTo(w)
 
