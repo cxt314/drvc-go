@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
@@ -63,5 +64,25 @@ func (f *Form) MinLength(field string, length int, r *http.Request) bool {
 func (f *Form) IsEmail(field string) {
 	if !govalidator.IsEmail(f.Get(field)) {
 		f.Errors.Add(field, "Invalid email address")
+	}
+}
+
+func (f *Form) IsValidEndMileage(field string, originalStartMileage int, originalEndMileage int, nextTripEndMileage int) {
+	newEndMileage, err := strconv.Atoi(f.Get(field))
+	if err != nil {
+		f.Errors.Add(field, "This field must be a number")
+	}
+
+	if newEndMileage < originalStartMileage {
+		f.Errors.Add(field, "End mileage cannot be less than start mileage")
+	}
+
+	diff := newEndMileage - originalEndMileage
+	if diff == 1000 {
+		// no error, all future trips will have mileages adjusted by 1000
+	} else if diff > 0 && diff < 1000 {
+		if newEndMileage > nextTripEndMileage {
+			f.Errors.Add(field, fmt.Sprintf("End Mileage must be less than next trip's end mileage: %d", nextTripEndMileage))
+		}
 	}
 }

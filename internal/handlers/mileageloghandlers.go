@@ -465,6 +465,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 	// do form validation checks
 	form.Required("trip-day", "start-mileage", "end-mileage", "riders")
+	form.IsValidEndMileage("end-mileage", t.StartMileage, originalEndMileage, laterTrips[0].EndMileage)
 
 	// if there were errors, re-generate the partial form w/ errors
 	if !form.Valid() {
@@ -481,6 +482,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get mileage log
 	v, err := m.DB.GetMileageLogByID(t.MileageLog.ID)
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -494,7 +496,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: if the new trip isn't a 1000 mile roll-over and results in needing to update multiple trips, then return an error
+	// update later trips if end mileage changed
 	err = m.updateFutureTripMileages(t, laterTrips, originalEndMileage)
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -530,6 +532,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 }
 
 // updateFutureTripMileages updates subsequent start & end mileages when a trip is updated
+// TODO: what if we need to reduce end mileage?
 func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []models.Trip, originalEndMileage int) error {
 	//fmt.Println("In updateFutureTripMileages")
 	diff := updated.EndMileage - originalEndMileage
@@ -549,7 +552,7 @@ func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []
 			}
 		}
 
-	} else if diff > 0 && diff < 1000 {
+	} else if diff != 0 && diff < 1000 && diff > -1000 {
 		//fmt.Println("Mileage changed by less than 1000")
 		// only update the next trip's starting mileage. next trip's END mileage should be greater than updated.EndMileage
 		nextTrip := laterTrips[0]
