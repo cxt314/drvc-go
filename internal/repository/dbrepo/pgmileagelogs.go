@@ -425,12 +425,14 @@ func (m *postgresDBRepo) UpdateTripByID(v models.Trip) error {
 	})
 }
 
+// GetLaterTrips returns a slice of trips that happened in the same mileage log, after the given trip
+// The slice of trips is returned in ascending order
 func (m *postgresDBRepo) GetLaterTrips(v models.Trip) ([]models.Trip, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	q := fmt.Sprintf(`SELECT id, %s FROM trips WHERE mileage_log_id = $1 AND start_mileage >= $2 
-				ORDER BY start_mileage DESC, trip_date DESC`, tripCols)
+				ORDER BY start_mileage ASC, trip_date ASC`, tripCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, v.MileageLog.ID, v.EndMileage)
