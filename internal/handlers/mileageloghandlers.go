@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -519,13 +518,6 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: call this check before saving the trip in case it causes errors
-	err = m.updateFutureTripMileages(t, laterTrips, originalEndMileage)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
 	td.Data["trip"] = t
 	td.Form = forms.New(nil)
 
@@ -539,22 +531,26 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 // updateFutureTripMileages updates subsequent start & end mileages when a trip is updated
 func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []models.Trip, originalEndMileage int) error {
-
+	//fmt.Println("In updateFutureTripMileages")
 	diff := updated.EndMileage - originalEndMileage
+	//fmt.Printf("Mileage diff: %d\n", diff)
 
 	if diff == 1000 {
+		//fmt.Println("1000 mile roll-over")
 		// 1000 roll-over: increase start and end mileages of all future trips by 1000
 		for _, t := range laterTrips {
 			t.StartMileage += 1000
 			t.EndMileage += 1000
 
 			err := m.DB.UpdateTripByID(t)
+			//fmt.Printf("Trip ID: %d Mileage Log ID: %d StartMileage: %d EndMileage %d\n", t.ID, t.MileageLog.ID, t.StartMileage, t.EndMileage)
 			if err != nil {
 				return err
 			}
 		}
 
 	} else if diff > 0 && diff < 1000 {
+		//fmt.Println("Mileage changed by less than 1000")
 		// only update the next trip's starting mileage. next trip's END mileage should be greater than updated.EndMileage
 		nextTrip := laterTrips[0]
 		nextTrip.StartMileage = updated.EndMileage
@@ -563,6 +559,7 @@ func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []
 			return fmt.Errorf("start mileage (%d) cannot be greater than end mileage (%d)", nextTrip.StartMileage, nextTrip.EndMileage)
 		}
 
+		//fmt.Printf("Trip ID: %d Mileage Log ID: %d StartMileage: %d EndMileage %d\n", nextTrip.ID, nextTrip.MileageLog.ID, nextTrip.StartMileage, nextTrip.EndMileage)
 		err := m.DB.UpdateTripByID(nextTrip)
 		if err != nil {
 			return err

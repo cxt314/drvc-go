@@ -115,11 +115,11 @@ func scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {
 // also gets the slice of riders for the trip
 func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows) ([]models.Trip, error) {
 	var trips []models.Trip
-	var mileage_log_id int
+	//var mileage_log_id int
 
 	for rows.Next() {
 		t := models.Trip{}
-		err := rows.Scan(&t.ID, &mileage_log_id, &t.TripDate, &t.StartMileage,
+		err := rows.Scan(&t.ID, &t.MileageLog.ID, &t.TripDate, &t.StartMileage,
 			&t.EndMileage, &t.IsLongDistance, &t.Destination, &t.Purpose,
 			&t.CreatedAt, &t.UpdatedAt)
 		if err != nil {
