@@ -70,7 +70,7 @@ func (m *postgresDBRepo) AllVehicles() ([]models.Vehicle, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := fmt.Sprintf(`SELECT id, %s FROM vehicles`, vehicleCols)
+	q := fmt.Sprintf(`SELECT id, %s FROM vehicles ORDER BY name`, vehicleCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q)
@@ -88,7 +88,7 @@ func (m *postgresDBRepo) GetVehicleByActive(active bool) ([]models.Vehicle, erro
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := fmt.Sprintf(`SELECT id, %s FROM vehicles WHERE is_active=$1`, vehicleCols)
+	q := fmt.Sprintf(`SELECT id, %s FROM vehicles WHERE is_active=$1 ORDER BY name`, vehicleCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, active)
