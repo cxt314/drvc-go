@@ -33,6 +33,11 @@ type Trip struct {
 	UpdatedAt      time.Time
 }
 
+// Distance returns the calcaulted value of the distance of the trip
+func (t Trip) Distance() int {
+	return t.EndMileage - t.StartMileage
+}
+
 // Rider describes the rider model
 // This model describes the riders table which represents 
 // the M2M relationship between a DRVC member and a trip
