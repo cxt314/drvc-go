@@ -29,7 +29,12 @@ func (m *Repository) VehicleList(w http.ResponseWriter, r *http.Request) {
 
 // VehicleCreate displays the page to create a new vehicle
 func (m *Repository) VehicleCreate(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]interface{})
+	data["fuelTypes"] = models.FuelTypes
+	data["billingTypes"] = models.BillingTypes
+
 	render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
+		Data: data,
 		Form: forms.New(nil),
 	})
 }
