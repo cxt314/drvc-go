@@ -13,6 +13,7 @@ import (
 const vehicleCols = `name, year, make, model, fuel_type,
 				purchase_price, purchase_date, vin, license_plate,
 				is_active, sale_price, sale_date,
+				billing_type, base_per_mile, secondary_per_mile, minimum_fee,
 				created_at, updated_at`
 
 // InsertVehicle inserts a Vehicle into the database
@@ -21,13 +22,14 @@ func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
 	defer cancel()
 
 	stmt := fmt.Sprintf(`INSERT INTO vehicles (%s)
-				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
 		vehicleCols)
 
 	_, err := m.DB.ExecContext(ctx, stmt,
 		v.Name, v.Year, v.Make, v.Model, v.FuelType,
 		v.PurchasePrice, v.PurchaseDate, v.Vin, v.LicensePlate,
 		v.Active, v.SalePrice, v.SaleDate,
+		v.BillingType, v.BasePerMile, v.SecondaryPerMile, v.MinimumFee,
 		time.Now(), time.Now(),
 	)
 
@@ -47,6 +49,7 @@ func scanRowsToVehicles(rows *sql.Rows) ([]models.Vehicle, error) {
 		err := rows.Scan(&m.ID, &m.Name, &m.Year, &m.Make, &m.Model, &m.FuelType,
 			&m.PurchasePrice, &m.PurchaseDate, &m.Vin, &m.LicensePlate,
 			&m.Active, &m.SalePrice, &m.SaleDate,
+			&m.BillingType, &m.BasePerMile, &m.SecondaryPerMile, &m.MinimumFee,
 			&m.CreatedAt, &m.UpdatedAt)
 		if err != nil {
 			return vehicles, err
@@ -115,6 +118,7 @@ func (m *postgresDBRepo) GetVehicleByID(id int) (models.Vehicle, error) {
 	err := row.Scan(&v.ID, &v.Name, &v.Year, &v.Make, &v.Model, &v.FuelType,
 		&v.PurchasePrice, &v.PurchaseDate, &v.Vin, &v.LicensePlate,
 		&v.Active, &v.SalePrice, &v.SaleDate,
+		&v.BillingType, &v.BasePerMile, &v.SecondaryPerMile, &v.MinimumFee,
 		&v.CreatedAt, &v.UpdatedAt)
 	if err != nil {
 		return v, err
@@ -141,8 +145,12 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 			is_active = $10,
 			sale_price = $11,
 			sale_date = $12,
-			updated_at = $13
-		WHERE id =  $14
+			billing_type = $13,
+			base_per_mile = $14,
+			secondary_per_mile = $15,
+			minimum_fee = $16,
+			updated_at = $17
+		WHERE id =  $18
 		`
 
 	_, err := m.DB.ExecContext(ctx, q,
@@ -158,6 +166,10 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 		v.Active,
 		v.SalePrice,
 		v.SaleDate,
+		v.BillingType,
+		v.BasePerMile,
+		v.SecondaryPerMile,
+		v.MinimumFee,
 		time.Now(),
 		v.ID,
 	)
