@@ -62,9 +62,12 @@
                             {{with .Form.Errors.Get "fuel_type"}}
                                 <label class="text-danger">{{.}}</label>
                             {{end}}
-                            <input class="form-control {{with .Form.Errors.Get "fuel_type"}} is-invalid {{end}}" 
-                                    id="fuel_type" autocomplete="off" type='text'
-                                    name='fuel_type' value="{{$v.FuelType}}" required>
+                                <select class="form-select" aria-label="fuel type select" id="fuel_type"
+                                        name="fuel_type" required>
+                                        {{ range $key, $value := index .Data "fuelTypes" }}
+                                            <option value="{{$key}}" {{if eq $key $v.FuelType }} selected {{ end }}>{{$value}}</option>
+                                        {{ end }}
+                                </select>
                             </div>
                         </div>
                     </div>

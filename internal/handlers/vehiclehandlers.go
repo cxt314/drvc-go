@@ -50,6 +50,8 @@ func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["vehicle"] = v
+		data["fuelTypes"] = models.FuelTypes
+		data["billingTypes"] = models.BillingTypes
 
 		render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
 			Form: form,
@@ -85,6 +87,8 @@ func (m *Repository) VehicleEdit(w http.ResponseWriter, r *http.Request) {
 
 	data := make(map[string]interface{})
 	data["vehicle"] = v
+	data["fuelTypes"] = models.FuelTypes
+	data["billingTypes"] = models.BillingTypes
 
 	render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
@@ -121,6 +125,8 @@ func (m *Repository) VehicleEditPost(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["vehicle"] = v
+		data["fuelTypes"] = models.FuelTypes
+		data["billingTypes"] = models.BillingTypes
 
 		render.Template(w, r, "edit-vehicle.page.tmpl", &models.TemplateData{
 			Form: form,
