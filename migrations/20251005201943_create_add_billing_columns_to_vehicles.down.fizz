@@ -1,0 +1,4 @@
+drop_column("vehicles", "billing_type")
+drop_column("vehicles", "base_per_mile")
+drop_column("vehicles", "secondary_per_mile")
+drop_column("vehicles", "minimum_fee")

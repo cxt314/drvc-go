@@ -23,6 +23,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.FuelType = r.Form.Get("fuel_type")
 	v.Vin = r.Form.Get("vin")
 	v.LicensePlate = r.Form.Get("license_plate")
+	v.BillingType = r.Form.Get("billing_type")
 
 	// parse year str to int
 	v.Year, err = strconv.Atoi(r.Form.Get("year"))
@@ -36,6 +37,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 		return err
 	}
 	v.PurchaseDate = &tempPD
+	// parse PurchasePrice to USD
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
 
 	// parse sale date string to *time.Time
@@ -44,7 +46,13 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 		return err
 	}
 	v.SaleDate = &tempSD
+	// parse SalePrice to uSD
 	v.SalePrice = models.StrToUSD(r.Form.Get("sale_price"))
+
+	// parse billing USD fields
+	v.BasePerMile = models.StrToUSD(r.Form.Get("base_per_mile"))
+	v.SecondaryPerMile = models.StrToUSD(r.Form.Get("secondary_per_mile"))
+	v.MinimumFee = models.StrToUSD(r.Form.Get("minimum_fee"))
 
 	return nil
 }

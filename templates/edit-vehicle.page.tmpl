@@ -144,7 +144,56 @@
                     <hr>
                     <div class="row">
                         <div class="col">
-                            <h4>Billing</h4>
+                            <h5>Billing</h5> 
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="billing_type">Billing Style:</label>
+                                        {{with .Form.Errors.Get "billing_type"}}
+                                            <label class="text-danger">{{.}}</label>
+                                        {{end}}
+                                        <select class="form-select" aria-label="Billing type select" id="billing_type"
+                                            name="billing_type" required>
+                                            {{ range index .Data "billingTypes" }}
+                                                <option value="{{.}}" {{if eq . $v.BillingType }} selected {{ end }}>{{.}}</option>
+                                            {{ end }}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="base_per_mile">Base Rate (per mile):</label>
+                                        {{with .Form.Errors.Get "base_per_mile"}}
+                                            <label class="text-danger">{{.}}</label>
+                                        {{end}}
+                                        <input class="form-control {{with .Form.Errors.Get "base_per_mile"}} is-invalid {{end}}" 
+                                                id="base_per_mile" autocomplete="off" type='text'
+                                                name='base_per_mile' value="{{$v.BasePerMile}}" >
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="secondary_per_mile">Secondary Rate (per mile):</label>
+                                        {{with .Form.Errors.Get "secondary_per_mile"}}
+                                            <label class="text-danger">{{.}}</label>
+                                        {{end}}
+                                        <input class="form-control {{with .Form.Errors.Get "secondary_per_mile"}} is-invalid {{end}}" 
+                                                id="secondary_per_mile" autocomplete="off" type='text'
+                                                name='secondary_per_mile' value="{{$v.SecondaryPerMile}}" >
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="minimum_fee">Minimum Use Fee:</label>
+                                        {{with .Form.Errors.Get "minimum_fee"}}
+                                            <label class="text-danger">{{.}}</label>
+                                        {{end}}
+                                        <input class="form-control {{with .Form.Errors.Get "minimum_fee"}} is-invalid {{end}}" 
+                                                id="minimum_fee" autocomplete="off" type='text'
+                                                name='minimum_fee' value="{{$v.MinimumFee}}" >
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

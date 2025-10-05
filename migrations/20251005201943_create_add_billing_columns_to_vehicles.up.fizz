@@ -1,0 +1,4 @@
+add_column("vehicles", "billing_type", "string", {"default": "Basic"})
+add_column("vehicles", "base_per_mile", "integer", {"default": 0})
+add_column("vehicles", "secondary_per_mile", "integer", {"default": 0})
+add_column("vehicles", "minimum_fee", "integer", {"default": 0})
