@@ -15,8 +15,7 @@ const tripCols = `mileage_log_id, trip_date, start_mileage, end_mileage, is_long
 		purpose, created_at, updated_at`
 const riderCols = `trip_id, member_id, created_at, updated_at`
 
-// InsertMileageLog inserts a MileageLog into the database. This is wrapped in a transaction
-// due to needing to insert trips and riders as well
+// InsertMileageLog inserts a MileageLog into the database.
 func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) (int, error) {
 	return runInTxReturnID(m.DB, func(tx *sql.Tx) (int, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
@@ -36,16 +35,6 @@ func (m *postgresDBRepo) InsertMileageLog(v models.MileageLog) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-
-		// insert trips into trips table
-		// for _, a := range v.Trips {
-		// 	err := insertTripsTx(tx, ctx, lastInsertId, a)
-
-		// 	if err != nil {
-		// 		return 0, err
-		// 	}
-
-		// }
 
 		return lastInsertId, nil
 	})
@@ -115,7 +104,6 @@ func scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {
 // also gets the slice of riders for the trip
 func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows) ([]models.Trip, error) {
 	var trips []models.Trip
-	//var mileage_log_id int
 
 	for rows.Next() {
 		t := models.Trip{}
@@ -288,6 +276,7 @@ func (m *postgresDBRepo) UpdateMileageLog(v models.MileageLog) error {
 }
 
 // DeleteMileageLog deletes one mielage log by id. Also deletes all trips with that mileage log id
+// TODO: allow deleting milage logs
 func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 	return runInTx(m.DB, func(tx *sql.Tx) error {
 		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)

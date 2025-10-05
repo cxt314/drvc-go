@@ -282,40 +282,6 @@ func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "edit-mileage-log-trips.page.tmpl", td)
 }
 
-/*
-// TripsEditPost saves a new trip
-func (m *Repository) TripsEditPost(w http.ResponseWriter, r *http.Request) {
-	exploded := strings.Split(r.RequestURI, "/")
-	id, err := strconv.Atoi(exploded[2])
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	// get mileage log from database
-	v, err := m.DB.GetMileageLogByID(id)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	t := models.Trip{}
-	// parse form into trip
-	err = helpers.ParseFormToTrip(r, &t, v)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	_, err = m.DB.InsertTrip(t)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/%d/edit-trips", id), http.StatusSeeOther)
-} */
-
 // AddTripPost is the HTMX route that inserts a new trip
 // On successful insert, returns a new trip form & the table row of the new trip
 // If unsuccessful, returns the trip form with data & errors
@@ -337,6 +303,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	form := forms.New(r.PostForm)
 	//fmt.Println(r.PostForm)
+
 	// do form validation checks
 	form.Required("trip-day", "start-mileage", "end-mileage", "end-mileage-input", "riders")
 
@@ -357,6 +324,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	t := models.Trip{}
+
 	// parse form into trip
 	err = helpers.ParseFormToTrip(r, &t, v)
 	if err != nil {
@@ -377,6 +345,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	td.Form = forms.New(nil)
+	
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripTableSwap", td)
@@ -510,17 +479,6 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// td := models.TemplateData{}
-	// td.Data = make(map[string]interface{})
-
-	// // re-fetch trip by id
-	// t, err = m.DB.GetTripByID(id)
-	// if err != nil {
-	// 	helpers.ServerError(w, err)
-	// 	return
-	// }
-
-	// td.Data["trip"] = t
 	td, err := m.getTripEditTemplateData(t.MileageLog.ID)
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -530,8 +488,6 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 	td.Form = forms.New(nil)
 
 	// create HTMX response
-	// TODO: update partial HTMX response to return full table in case other trip mileages needed to be updated
-	//render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripRowSwap", &td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwap", td)
 
 	buf.WriteTo(w)
