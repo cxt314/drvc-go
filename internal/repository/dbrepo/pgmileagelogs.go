@@ -78,19 +78,26 @@ func (m *postgresDBRepo) InsertTrip(v models.Trip) (int, error) {
 }
 
 // scanRowsToMileageLogs takes a pointer to *sql.Rows and scans those values into a slice of MileageLogs
-func scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {
+func (m *postgresDBRepo) scanRowsToMileageLogs(rows *sql.Rows) ([]models.MileageLog, error) {
 	var logs []models.MileageLog
 
 	for rows.Next() {
-		m := models.MileageLog{}
-		err := rows.Scan(&m.ID, &m.Vehicle.ID, &m.Name, &m.Year, &m.Month,
-			&m.StartOdometer, &m.EndOdometer,
-			&m.CreatedAt, &m.UpdatedAt)
+		t := models.MileageLog{}
+		err := rows.Scan(&t.ID, &t.Vehicle.ID, &t.Name, &t.Year, &t.Month,
+			&t.StartOdometer, &t.EndOdometer,
+			&t.CreatedAt, &t.UpdatedAt)
 		if err != nil {
 			return logs, err
 		}
 
-		logs = append(logs, m)
+		vehicle, err := m.GetVehicleByID(t.Vehicle.ID)
+		if err != nil {
+			return logs, err
+		}
+
+		t.Vehicle = vehicle
+
+		logs = append(logs, t)
 	}
 	err := rows.Err()
 	if err != nil {
@@ -145,7 +152,7 @@ func (m *postgresDBRepo) AllMileageLogs() ([]models.MileageLog, error) {
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return scanRowsToMileageLogs(rows)
+	return m.scanRowsToMileageLogs(rows)
 }
 
 // GetMileageLogByVehicleID returns a slice of all members that have status = active. Does not populate member aliases
@@ -163,7 +170,7 @@ func (m *postgresDBRepo) GetMileageLogsByVehicleID(vehicle_id int) ([]models.Mil
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return scanRowsToMileageLogs(rows)
+	return m.scanRowsToMileageLogs(rows)
 }
 
 // GetMileageLogByID returns one mileage_log from a given id, populates trips
@@ -268,8 +275,6 @@ func (m *postgresDBRepo) UpdateMileageLog(v models.MileageLog) error {
 		if err != nil {
 			return err
 		}
-
-		// do we process trips here?
 
 		return nil
 	})
