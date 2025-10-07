@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // MileageLog describes the mileage log model
 // Each MileageLog is made up of multiple Trips
@@ -34,12 +36,54 @@ type Trip struct {
 }
 
 // Distance returns the calcaulted value of the distance of the trip
-func (t Trip) Distance() int {
-	return t.EndMileage - t.StartMileage
+func (t Trip) Distance() float64 {
+	return float64(t.EndMileage - t.StartMileage)
+}
+
+// BillingMethod returns the billing method for a trip based on the vehicle. If the trip was Long Distance then long distance billing is used
+func (t Trip) BillingMethod() BillingMethod {
+	// if this is a long distance trip, we use long distance billing regardless of vehicle
+	if t.IsLongDistance {
+		return &LongDistanceBilling{
+			BillingName:   "Long Distance",
+			SingleDayRate: ToUSD(85.0),
+			MultiDayRate:  ToUSD(50.0),
+		}
+	}
+
+	if t.MileageLog.Vehicle.BillingType == "Basic" {
+		return &SimplePerMileBilling{
+			BillingName: "Simple Per Mile",
+			BasePerMile: t.MileageLog.Vehicle.BasePerMile,
+		}
+	}
+
+	if t.MileageLog.Vehicle.BillingType == "Truck" {
+		return &TruckBilling{
+			BillingName:      "Truck",
+			BasePerMile:      t.MileageLog.Vehicle.BasePerMile,
+			SecondaryPerMile: t.MileageLog.Vehicle.SecondaryPerMile,
+			MinimumFee:       t.MileageLog.Vehicle.MinimumFee,
+		}
+	}
+
+	return nil
+}
+
+func (t Trip) Cost() USD {
+	if t.IsLongDistance {
+		// implement long distance trip days tracking
+	}
+
+	if t.BillingMethod() != nil {
+		return t.BillingMethod().TripCost(t.Distance(), false)
+	}
+
+	return ToUSD(0.0)
 }
 
 // Rider describes the rider model
-// This model describes the riders table which represents 
+// This model describes the riders table which represents
 // the M2M relationship between a DRVC member and a trip
 type Rider struct {
 	ID        int

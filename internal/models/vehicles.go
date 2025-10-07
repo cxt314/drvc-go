@@ -35,7 +35,3 @@ type Vehicle struct {
 	SecondaryPerMile USD
 	MinimumFee       USD
 }
-
-type BillingMethod interface {
-	Name() string
-}
