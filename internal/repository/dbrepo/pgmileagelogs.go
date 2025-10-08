@@ -109,7 +109,7 @@ func (m *postgresDBRepo) scanRowsToMileageLogs(rows *sql.Rows) ([]models.Mileage
 
 // scanRowsToTrips takes a pointer to *sql.Rows and scans those values into a slice of Trips
 // also gets the slice of riders for the trip
-func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows) ([]models.Trip, error) {
+func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows, mileageLogID int) ([]models.Trip, error) {
 	var trips []models.Trip
 
 	for rows.Next() {
@@ -120,6 +120,13 @@ func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows) ([]models.Trip, error) 
 		if err != nil {
 			return trips, err
 		}
+
+		vehicle, err := m.getMileageLogVehicle(t.MileageLog.ID)
+		if err != nil {
+			return trips, err
+		}
+
+		t.MileageLog.Vehicle = vehicle
 
 		riders, err := m.getRidersByTripID(t.ID)
 		if err != nil {
@@ -135,6 +142,33 @@ func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows) ([]models.Trip, error) 
 	}
 
 	return trips, nil
+}
+
+func (m *postgresDBRepo) getMileageLogVehicle(mileageLogID int) (models.Vehicle, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := `SELECT vehicle_id FROM mileage_logs WHERE id = $1`
+
+	// execute our DB query
+	row := m.DB.QueryRowContext(ctx, q, mileageLogID)
+
+	var vehicleID int
+
+	// scan single db row into mileage log model
+	err := row.Scan(&vehicleID)
+	if err != nil {
+		return models.Vehicle{}, err
+	}
+
+	// get vehicle info
+	v, err := m.GetVehicleByID(vehicleID)
+	if err != nil {
+		return v, err
+	}
+
+	return v, nil
+
 }
 
 // AllMileageLogs returns a slice of all mileage logs in database. Does not populate trips
@@ -332,7 +366,7 @@ func (m *postgresDBRepo) GetTripsByMileageLogID(mileage_log_id int) ([]models.Tr
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return m.scanRowsToTrips(rows)
+	return m.scanRowsToTrips(rows, mileage_log_id)
 }
 
 // GetTripByID returns one trip from a given id
@@ -354,6 +388,13 @@ func (m *postgresDBRepo) GetTripByID(id int) (models.Trip, error) {
 	if err != nil {
 		return t, err
 	}
+
+	vehicle, err := m.getMileageLogVehicle(t.MileageLog.ID)
+	if err != nil {
+		return t, err
+	}
+
+	t.MileageLog.Vehicle = vehicle
 
 	riders, err := m.getRidersByTripID(t.ID)
 	if err != nil {
@@ -436,6 +477,6 @@ func (m *postgresDBRepo) GetLaterTrips(v models.Trip) ([]models.Trip, error) {
 	defer rows.Close()
 
 	// process query result into slice of members to return
-	return m.scanRowsToTrips(rows)
+	return m.scanRowsToTrips(rows, v.MileageLog.ID)
 
 }
