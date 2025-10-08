@@ -72,7 +72,8 @@ func (t Trip) BillingMethod() BillingMethod {
 
 func (t Trip) Cost() USD {
 	if t.IsLongDistance {
-		// implement long distance trip days tracking
+		// TODO: implement long distance trip days tracking
+		return t.BillingMethod().TripCost(0.0, false)
 	}
 
 	if t.BillingMethod() != nil {

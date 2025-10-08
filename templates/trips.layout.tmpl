@@ -214,6 +214,8 @@
     <th scope="col">Riders</th>
     <th scope="col">Destination</th>
     <th scope="col">Purpose</th>
+    <th scope="col">Distance</th>
+    <th scope="col">Cost</th>
     <th scope="col"></th>
 </tr>
 {{end}}
@@ -231,6 +233,8 @@
     </td>
     <td> {{ .Destination }}</td>
     <td> {{ .Purpose }}</td>
+    <td> {{ .Distance }}</td>
+    <td> {{ .Cost }}</td>
     <td> 
         <button hx-get="/trip-edit/{{.ID}}" hx-target="#trip-{{.ID}}" hx-swap="outerHTML" type="button" class="btn btn-primary">
             Edit 
