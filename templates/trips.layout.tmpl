@@ -61,17 +61,6 @@
             </div>
         </div>
         <div class="col">
-            <div class="form-group mt-3">
-                <label class="form-check-label" for="is-ld">LD?:</label>
-                {{with .Form.Errors.Get "is-ld"}}
-                    <label class="text-danger">{{.}}</label>
-                {{end}}
-                <input class="form-check-input" {{with .Form.Errors.Get "is-ld"}} is-invalid {{end}}
-                    id="is-ld" autocomplete="off" type='checkbox'
-                    name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
-            </div>
-        </div>
-        <div class="col">
                     <div class="form-group mt-3">
                         <label class="form-check-label" for="ld-days">LD Days?:</label>
                         {{with .Form.Errors.Get "ld-days"}}
@@ -189,17 +178,6 @@
                         <input class="form-control" {{with .Form.Errors.Get "purpose"}} is-invalid {{end}}
                             id="purpose" autocomplete="off" type='text'
                             name='purpose' value="{{ if $t }}{{ $t.Purpose }}{{else}}{{.Form.Get "purpose"}}{{end}}">
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group mt-3">
-                        <label class="form-check-label" for="is-ld">LD?:</label>
-                        {{with .Form.Errors.Get "is-ld"}}
-                            <label class="text-danger">{{.}}</label>
-                        {{end}}
-                        <input class="form-check-input" {{with .Form.Errors.Get "is-ld"}} is-invalid {{end}}
-                            id="is-ld" autocomplete="off" type='checkbox'
-                            name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
                     </div>
                 </div>
                 <div class="col">
