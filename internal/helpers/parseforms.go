@@ -147,9 +147,6 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 		return err
 	}
 
-	// check long-distance checkbox
-	//v.IsLongDistance = r.Form.Get("is-ld") == "ld"
-
 	// build TripDate from trip-day form input & mileage log year/month
 	tripDay, err := strconv.Atoi(r.Form.Get("trip-day"))
 	if err != nil {

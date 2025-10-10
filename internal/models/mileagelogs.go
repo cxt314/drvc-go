@@ -27,7 +27,6 @@ type Trip struct {
 	TripDate         time.Time
 	StartMileage     int
 	EndMileage       int
-	IsLongDistance   bool
 	LongDistanceDays int
 	BillingRate      string
 	Destination      string
@@ -45,7 +44,7 @@ func (t Trip) Distance() float64 {
 // BillingMethod returns the billing method for a trip based on the vehicle. If the trip was Long Distance then long distance billing is used
 func (t Trip) BillingMethod() BillingMethod {
 	// if this is a long distance trip, we use long distance billing regardless of vehicle
-	if t.IsLongDistance {
+	if t.LongDistanceDays != 0 {
 		return &LongDistanceBilling{
 			BillingName:   "Long Distance",
 			SingleDayRate: ToUSD(85.0),
@@ -73,9 +72,8 @@ func (t Trip) BillingMethod() BillingMethod {
 }
 
 func (t Trip) Cost() USD {
-	if t.IsLongDistance {
-		// TODO: implement long distance trip days tracking
-		return t.BillingMethod().TripCost(0.0, false)
+	if t.LongDistanceDays != 0 {
+		return t.BillingMethod().TripCost(float64(t.LongDistanceDays), false)
 	}
 
 	if t.BillingMethod() != nil {
