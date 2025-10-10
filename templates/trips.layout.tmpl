@@ -71,6 +71,34 @@
                     name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
             </div>
         </div>
+        <div class="col">
+                    <div class="form-group mt-3">
+                        <label class="form-check-label" for="ld-days">LD Days?:</label>
+                        {{with .Form.Errors.Get "ld-days"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <select class="form-select" aria-label="Long Distance Days Select" id="ld-days"
+                                    name="ld-days" required>
+                                    {{ range index .Data "ld-days" }}
+                                        <option value="{{.}}" {{if eq . $t.BillingRate }} selected {{ end }}>{{.}}</option>
+                                    {{ end }}
+                                </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group mt-3">
+                        <label class="form-check-label" for="billing-rate">Rate:</label>
+                        {{with .Form.Errors.Get "billing-rate"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <select class="form-select" aria-label="Billing Rate Select" id="billing-rate"
+                                    name="billing-rate" required>
+                                    {{ range index .Data "billing-rates" }}
+                                        <option value="{{.}}" {{if eq . $t.BillingRate }} selected {{ end }}>{{.}}</option>
+                                    {{ end }}
+                                </select>
+                    </div>
+                </div>
     </div>
     <div class="row">
         <div class="col">
@@ -174,6 +202,34 @@
                             name='is-ld' value="ld" {{if $t.IsLongDistance }}checked{{end}} >
                     </div>
                 </div>
+                <div class="col">
+                    <div class="form-group mt-3">
+                        <label class="form-check-label" for="ld-days">LD Days?:</label>
+                        {{with .Form.Errors.Get "ld-days"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <select class="form-select" aria-label="Long Distance Days Select" id="ld-days"
+                                    name="ld-days" required>
+                                    {{ range index .Data "ld-days" }}
+                                        <option value="{{.}}" {{if eq . $t.LongDistanceDays }} selected {{ end }}>{{.}}</option>
+                                    {{ end }}
+                                </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group mt-3">
+                        <label class="form-check-label" for="billing-rate">Rate:</label>
+                        {{with .Form.Errors.Get "billing-rate"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <select class="form-select" aria-label="Billing Rate Select" id="billing-rate"
+                                    name="billing-rate" required>
+                                    {{ range index .Data "billing-rates" }}
+                                        <option value="{{.}}" {{if eq . $t.BillingRate }} selected {{ end }}>{{.}}</option>
+                                    {{ end }}
+                                </select>
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col">
@@ -210,22 +266,23 @@
     <th scope="col">Day</th>
     <th scope="col">Start</th>
     <th scope="col">End</th>
-    <th scope="col">LD?</th>
+    <th scope="col">LD Days</th>
     <th scope="col">Riders</th>
     <th scope="col">Destination</th>
     <th scope="col">Purpose</th>
     <th scope="col">Distance</th>
+    <th scope="col">Use Rate</th>
     <th scope="col">Cost</th>
     <th scope="col"></th>
 </tr>
 {{end}}
 
 {{define "tripRow"}}
-<tr id="trip-{{.ID}}" {{if .IsLongDistance }} class="table-info" {{else}}{{if gt .Distance 300.0 }}class="table-warning"{{end}}{{end}}>
+<tr id="trip-{{.ID}}" {{if ne .LongDistanceDays 0 }} class="table-info" {{else}}{{if gt .Distance 300.0 }}class="table-warning"{{end}}{{end}}>
     <td>{{ .TripDate.Format "2006-01-02" }}</td>
     <td> {{ .StartMileage }}</td>
     <td> {{ .EndMileage }}</td>
-    <td> {{ if .IsLongDistance }}LD{{end}}</td>
+    <td> {{ if ne .LongDistanceDays 0 }}{{ .LongDistanceDays }}{{end}}</td>
     <td> 
         {{ range .Riders }}
             [{{ .Name }}]
@@ -234,6 +291,7 @@
     <td> {{ .Destination }}</td>
     <td> {{ .Purpose }}</td>
     <td> {{ .Distance }}</td>
+    <td> {{ .BillingRate }}</td>
     <td> {{ .Cost }}</td>
     <td> 
         <button hx-get="/trip-edit/{{.ID}}" hx-target="#trip-{{.ID}}" hx-swap="outerHTML" type="button" class="btn btn-primary">

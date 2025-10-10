@@ -22,17 +22,19 @@ type MileageLog struct {
 // Trip describes the trip model
 // Each trip can have multiple DRVC Members as riders
 type Trip struct {
-	ID             int
-	MileageLog     MileageLog
-	TripDate       time.Time
-	StartMileage   int
-	EndMileage     int
-	IsLongDistance bool
-	Destination    string
-	Purpose        string
-	Riders         []Member
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID               int
+	MileageLog       MileageLog
+	TripDate         time.Time
+	StartMileage     int
+	EndMileage       int
+	IsLongDistance   bool
+	LongDistanceDays int
+	BillingRate      string
+	Destination      string
+	Purpose          string
+	Riders           []Member
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 // Distance returns the calcaulted value of the distance of the trip

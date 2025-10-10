@@ -253,6 +253,10 @@ func (m *Repository) getTripEditTemplateData(mileageLogId int) (*models.Template
 
 	data["member-options"] = createRiderOptionsTomSelect(members)
 
+	data["billing-rates"] = models.BillingRates
+
+	data["ld-days"] = models.LongDistanceDays
+
 	td.Data = data
 
 	// calculate last odometer value from trips & mileage log start odometer
