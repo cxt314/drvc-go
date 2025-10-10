@@ -142,8 +142,13 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 		return err
 	}
 
+	v.LongDistanceDays, err = strconv.Atoi(r.Form.Get("ld-days"))
+	if err != nil {
+		return err
+	}
+
 	// check long-distance checkbox
-	v.IsLongDistance = r.Form.Get("is-ld") == "ld"
+	//v.IsLongDistance = r.Form.Get("is-ld") == "ld"
 
 	// build TripDate from trip-day form input & mileage log year/month
 	tripDay, err := strconv.Atoi(r.Form.Get("trip-day"))
@@ -176,6 +181,7 @@ func ParseFormToTrip(r *http.Request, v *models.Trip, log models.MileageLog) err
 	// parse string fields
 	v.Destination = r.Form.Get("destination")
 	v.Purpose = r.Form.Get("purpose")
+	v.BillingRate = r.Form.Get("billing-rate")
 
 	//fmt.Println(v)
 	return nil
