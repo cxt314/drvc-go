@@ -349,7 +349,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	td.Form = forms.New(nil)
-	
+
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripTableSwap", td)
@@ -438,7 +438,10 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 	// do form validation checks
 	form.Required("trip-day", "start-mileage", "end-mileage", "riders")
-	form.IsValidEndMileage("end-mileage", t.StartMileage, originalEndMileage, laterTrips[0].EndMileage)
+	// check for valid end mileage if there are any later trips
+	if len(laterTrips) > 0 {
+		form.IsValidEndMileage("end-mileage", t.StartMileage, originalEndMileage, laterTrips[0].EndMileage)
+	}
 
 	// if there were errors, re-generate the partial form w/ errors
 	if !form.Valid() {
@@ -470,10 +473,12 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// update later trips if end mileage changed
-	err = m.updateFutureTripMileages(t, laterTrips, originalEndMileage)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
+	if len(laterTrips) > 0 {
+		err = m.updateFutureTripMileages(t, laterTrips, originalEndMileage)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
 	}
 
 	// update trip
