@@ -11,7 +11,7 @@ import (
 
 // memberCols lists the columns in the members table EXCEPT "id"
 const mileageLogCols = `vehicle_id, name, year, month, start_odometer, end_odometer, created_at, updated_at`
-const tripCols = `mileage_log_id, trip_date, start_mileage, end_mileage, is_long_distance, destination,
+const tripCols = `mileage_log_id, trip_date, start_mileage, end_mileage, long_distance_days, billing_rate, destination,
 		purpose, created_at, updated_at`
 const riderCols = `trip_id, member_id, created_at, updated_at`
 
@@ -49,13 +49,13 @@ func (m *postgresDBRepo) InsertTrip(v models.Trip) (int, error) {
 
 		// insert into trips table & return trip-id
 		stmt := fmt.Sprintf(`INSERT INTO trips (%s)
-					VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+					VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 					RETURNING id`,
 			tripCols)
 
 		err := tx.QueryRowContext(ctx, stmt,
 			v.MileageLog.ID, v.TripDate, v.StartMileage, v.EndMileage,
-			v.IsLongDistance, v.Destination, v.Purpose,
+			v.LongDistanceDays, v.BillingRate, v.Destination, v.Purpose,
 			time.Now(), time.Now(),
 		).Scan(&lastInsertId)
 		if err != nil {
@@ -115,7 +115,7 @@ func (m *postgresDBRepo) scanRowsToTrips(rows *sql.Rows, mileageLogID int) ([]mo
 	for rows.Next() {
 		t := models.Trip{}
 		err := rows.Scan(&t.ID, &t.MileageLog.ID, &t.TripDate, &t.StartMileage,
-			&t.EndMileage, &t.IsLongDistance, &t.Destination, &t.Purpose,
+			&t.EndMileage, &t.LongDistanceDays, &t.BillingRate, &t.Destination, &t.Purpose,
 			&t.CreatedAt, &t.UpdatedAt)
 		if err != nil {
 			return trips, err
@@ -383,7 +383,7 @@ func (m *postgresDBRepo) GetTripByID(id int) (models.Trip, error) {
 	// scan single db row into trip model
 	t := models.Trip{}
 	err := row.Scan(&t.ID, &t.MileageLog.ID, &t.TripDate, &t.StartMileage,
-		&t.EndMileage, &t.IsLongDistance, &t.Destination, &t.Purpose,
+		&t.EndMileage, &t.LongDistanceDays, &t.BillingRate, &t.Destination, &t.Purpose,
 		&t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		return t, err
@@ -418,21 +418,23 @@ func (m *postgresDBRepo) UpdateTripByID(v models.Trip) error {
 					trip_date = $2,
 					start_mileage = $3,
 					end_mileage = $4,
-					is_long_distance = $5,
+					long_distance_days = $5,
 					destination = $6,
 					purpose = $7,
-					updated_at = $8
-					WHERE id=$9`
+					updated_at = $8,
+					billing_rate = $9
+					WHERE id=$10`
 
 		_, err := tx.ExecContext(ctx, stmt,
 			v.MileageLog.ID,
 			v.TripDate,
 			v.StartMileage,
 			v.EndMileage,
-			v.IsLongDistance,
+			v.LongDistanceDays,
 			v.Destination,
 			v.Purpose,
 			time.Now(),
+			v.BillingRate,
 			v.ID)
 		if err != nil {
 			return err
