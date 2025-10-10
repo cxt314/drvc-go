@@ -77,6 +77,9 @@ func (t Trip) Cost() USD {
 	}
 
 	if t.BillingMethod() != nil {
+		if t.BillingMethod().Name() == "Truck" && t.BillingRate == "Secondary" {
+			return t.BillingMethod().TripCost(t.Distance(), true)
+		}
 		return t.BillingMethod().TripCost(t.Distance(), false)
 	}
 

@@ -123,8 +123,14 @@
         const startMileageFull = document.getElementById('start-mileage').value;
         const endThreeDigits = document.getElementById('end-mileage-input').value;
         
+        endMileageThreeDigits = parseInt(endThreeDigits)
+        // if user accidentally entered too many digits, only take last 3 digits
+        if (endMileageThreeDigits > 999) {
+            endMileageThreeDigits = endThreeDigits % 1000
+        }
+
         // Reconstruct the full odometer value.
-        let endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + parseInt(endThreeDigits);
+        let endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + endMileageThreeDigits;
         // if last three digits of end mileage is less than last three digits of start mileage, add 1000 to full mileage
         if (endThreeDigits < (startMileageFull % 1000)) {
             endMileageFull = endMileageFull + 1000;
