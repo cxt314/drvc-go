@@ -16,6 +16,9 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 		return err
 	}
 
+	// newly created vehicles should default to active
+	v.Active = true
+
 	// parse string fields
 	v.Name = r.Form.Get("name")
 	v.Make = r.Form.Get("make")
