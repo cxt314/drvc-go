@@ -9,6 +9,7 @@ type Member struct {
 	Name      string
 	Email     string
 	Aliases   []MemberAlias
+	Active    bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

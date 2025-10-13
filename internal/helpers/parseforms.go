@@ -66,6 +66,9 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 		return err
 	}
 
+	// new members are active by default
+	v.Active = true
+	
 	// parse string fields
 	v.Name = r.Form.Get("name")
 	v.Email = r.Form.Get("email")

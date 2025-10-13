@@ -10,7 +10,7 @@ import (
 )
 
 // memberCols lists the columns in the members table EXCEPT "id"
-const memberCols = `name, email, created_at, updated_at`
+const memberCols = `name, email, is_active, created_at, updated_at`
 const aliasCols = `member_id, name, created_at, updated_at`
 
 // InsertMember inserts a Member into the database. This is wrapped in a transaction
@@ -23,12 +23,12 @@ func (m *postgresDBRepo) InsertMember(v models.Member) error {
 		var lastInsertId int
 		// insert into members table & return inserted member id
 		stmt := fmt.Sprintf(`INSERT INTO members (%s)
-				VALUES ($1, $2, $3, $4)
+				VALUES ($1, $2, $3, $4, $5)
 				RETURNING id`,
 			memberCols)
 
 		err := tx.QueryRowContext(ctx, stmt,
-			v.Name, v.Email,
+			v.Name, v.Email, v.Active,
 			time.Now(), time.Now(),
 		).Scan(&lastInsertId)
 		if err != nil {
@@ -80,7 +80,7 @@ func (m *postgresDBRepo) scanRowsToMembers(rows *sql.Rows) ([]models.Member, err
 
 	for rows.Next() {
 		newMember := models.Member{}
-		err := rows.Scan(&newMember.ID, &newMember.Name, &newMember.Email,
+		err := rows.Scan(&newMember.ID, &newMember.Name, &newMember.Email, &newMember.Active,
 			&newMember.CreatedAt, &newMember.UpdatedAt)
 		if err != nil {
 			return members, err
@@ -175,7 +175,7 @@ func (m *postgresDBRepo) GetMemberByID(id int) (models.Member, error) {
 	row := m.DB.QueryRowContext(ctx, q, id)
 
 	// scan single db row into member model
-	err := row.Scan(&v.ID, &v.Name, &v.Email,
+	err := row.Scan(&v.ID, &v.Name, &v.Email, &v.Active,
 		&v.CreatedAt, &v.UpdatedAt)
 	if err != nil {
 		return v, err
@@ -224,12 +224,14 @@ func (m *postgresDBRepo) UpdateMember(v models.Member) error {
 		q := `UPDATE members SET
 			name = $1,
 			email = $2,
-			updated_at = $3
-		WHERE id =  $4 `
+			is_active = $3,
+			updated_at = $4
+		WHERE id =  $5 `
 
 		_, err := tx.ExecContext(ctx, q,
 			v.Name,
 			v.Email,
+			v.Active,
 			time.Now(),
 			v.ID,
 		)
