@@ -405,7 +405,7 @@ func (m *Repository) EditTrip(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// EditTripPost is the HTMX route that returns an edit trip form for a trip id
+// EditTripPost is the HTMX route that updates a trip
 func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 	exploded := strings.Split(r.RequestURI, "/")
@@ -453,7 +453,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 		td.Data["trip"] = t
 		td.Form = form
-		render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditForm", td)
+		render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwapError", td)
 		buf.WriteTo(w)
 		return
 	}

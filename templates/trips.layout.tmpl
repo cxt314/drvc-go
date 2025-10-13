@@ -311,3 +311,23 @@
     </tbody>
 </table>
 {{end}}
+
+{{define "tripEditTableSwapError"}}
+{{ $data := . }}
+{{ $v := index .Data "mileage-log" }}
+{{ $t := index .Data "trip" }}
+<table id="trip-list" class="table table-sm table-striped">
+    <thead>
+        {{template "tripHeader" .}}
+    </thead>
+    <tbody>
+        {{range $v.Trips}}
+            {{if eq .ID $t.ID }}
+                {{ template "tripEditForm" $data}}
+            {{ else }}
+                {{template "tripRow" .}}
+            {{ end }}
+        {{ end }}
+    </tbody>
+</table>
+{{end}}
