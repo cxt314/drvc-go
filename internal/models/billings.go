@@ -15,6 +15,10 @@ func (b *SimplePerMileBilling) Name() string {
 }
 
 func (b *SimplePerMileBilling) TripCost(multiplier float64, UseSecondaryRate bool) USD {
+	// if trip is less than 1 mile, trip = 1 mile
+	if multiplier == 0.0 {
+		return b.BasePerMile.Multiply(1.0)
+	}
 	return b.BasePerMile.Multiply(multiplier)
 }
 
@@ -37,6 +41,11 @@ func (b *TruckBilling) TripCost(multiplier float64, UseSecondaryRate bool) USD {
 	}
 
 	cost := rate.Multiply(multiplier)
+	// if trip is less than 1 mile, trip = 1 mile
+	if multiplier == 0.0 {
+		cost = rate.Multiply(1.0)
+	}
+
 	if cost.Float64() < b.MinimumFee.Float64() {
 		return b.MinimumFee
 	} else {
