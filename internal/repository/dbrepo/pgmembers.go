@@ -148,7 +148,7 @@ func (m *postgresDBRepo) GetMemberByActive(active bool) ([]models.Member, error)
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := fmt.Sprintf(`SELECT id, %s FROM members WHERE is_active=$1`, memberCols)
+	q := fmt.Sprintf(`SELECT id, %s FROM members WHERE is_active=$1 ORDER BY name`, memberCols)
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, active)
