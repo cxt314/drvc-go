@@ -267,6 +267,47 @@ func (m *Repository) getTripEditTemplateData(mileageLogId int) (*models.Template
 	return &td, nil
 }
 
+func (m *Repository) getBillingTemplateData(mileageLogId int) (*models.TemplateData, error) {
+	td := models.TemplateData{}
+
+	// get mileage log from database
+	data := make(map[string]interface{})
+	v, err := m.DB.GetMileageLogByID(mileageLogId)
+	if err != nil {
+		return &td, err
+	}
+
+	data["mileage-log"] = v
+
+	// get Members from database & send as TomSelect compatible for rider selection
+	members, err := m.DB.GetMemberByActive(true)
+	if err != nil {
+		return &td, err
+	}
+
+	data["members"] = members
+
+	td.Data = data
+
+	// total cost of all trips
+	data["total-trip-cost"] = m.calcTotalTripCost(v)
+
+	// breakdown of cost by member
+
+	return &td, nil
+}
+
+func (m *Repository) calcTotalTripCost(log models.MileageLog) models.USD {
+	totalCost := models.ToUSD(0.0)
+
+	for _, v := range log.Trips {
+		totalCost = totalCost.AddUSD(v.Cost())
+		//fmt.Printf("Trip Cost: %s Total Cost: %s", v.Cost(), totalCost)
+	}
+
+	return totalCost
+}
+
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
 	id, err := strconv.Atoi(exploded[2])
@@ -542,4 +583,21 @@ func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []
 	}
 
 	return nil
+}
+
+func (m *Repository) MileageLogBilling(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	td, err := m.getBillingTemplateData(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	render.Template(w, r, "mileage-log-billing.page.tmpl", td)
 }

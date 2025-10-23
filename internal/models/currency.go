@@ -38,6 +38,13 @@ func (m USD) Multiply(f float64) USD {
 	return USD(x)
 }
 
+func (m USD) AddUSD(a USD) USD {
+	x := m.Float64()
+	y := a.Float64()
+
+	return ToUSD(x + y)
+}
+
 // String returns a formatted USD value
 func (m USD) String() string {
 	x := float64(m)

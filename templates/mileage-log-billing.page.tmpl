@@ -1,0 +1,106 @@
+{{template "base" .}}
+
+{{define "title"}}Create New Mileage Log{{end}}
+
+{{define "content"}}
+    <div class="container">
+        {{ $v := index .Data "mileage-log" }}
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-3">{{if $v}}Update {{$v.Name}} {{else}}Create Mileage Log{{end}}</h1>
+
+                <form method="post" action="{{if $v}}/mileage-logs/{{$v.ID}} {{else}}/new-mileage-log {{end}}" class="" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+                    <div class="form-group mt-3">
+                        <label for="name">Name:</label>
+                        {{with .Form.Errors.Get "name"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <input class="form-control {{with .Form.Errors.Get "name"}} is-invalid {{end}}"
+                               id="name" autocomplete="off" type='text'
+                               name='name' value="{{$v.Name}}" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="vehicle">Vehicle:</label>
+                                {{with .Form.Errors.Get "vehicle"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <select class="form-select" aria-label="Vehicle select" id="vehicle"
+                                    name="vehicle" required>
+                                    {{ range index .Data "vehicles" }}
+                                        <option value="{{.ID}}" {{if eq .ID $v.Vehicle.ID }} selected {{ end }}>{{.Name}}</option>
+                                    {{ end }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="year">Year:</label>
+                                {{with .Form.Errors.Get "year"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "year"}} is-invalid {{end}}" 
+                                        id="year" autocomplete="off" type='number'
+                                        name='year' value="{{$v.Year}}" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="month">Month:</label>
+                                {{with .Form.Errors.Get "month"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "month"}} is-invalid {{end}}" 
+                                        id="month" autocomplete="off" type='number'
+                                        name='month' value="{{$v.Month}}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="start_odometer">Odometer Start:</label>
+                                {{with .Form.Errors.Get "start_odometer"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "start_odometer"}} is-invalid {{end}}" 
+                                        id="start_odometer" autocomplete="off" type='number'
+                                        name='start_odometer' value="{{$v.StartOdometer}}" >
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="end_odometer">Odometer End:</label>
+                                {{with .Form.Errors.Get "end_odometer"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "end_odometer"}} is-invalid {{end}}" 
+                                        id="end_odometer" type='number'
+                                        name='end_odometer' value="{{$v.EndOdometer}}" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <input type="submit" class="btn btn-primary" value="Save Mileage Log Details">
+                        </div>
+                        <div class="col-8"></div>
+                        <div class="col"><a href="/mileage-logs/{{ $v.ID }}/edit-trips"><button type="button" class="btn btn-info">Update Trips</button></a></div>
+                    </div> 
+                </form>
+
+
+            </div>
+        </div>
+
+        
+    </div>
+{{end}}
+
