@@ -293,7 +293,11 @@ func (m *Repository) getBillingTemplateData(mileageLogId int) (*models.TemplateD
 	data["total-trip-cost"] = m.calcTotalTripCost(v)
 
 	// breakdown of cost by member
-	data["member-billings"] = m.calcPerMemberBillings(v, members)
+	memberBillings := m.calcPerMemberBillings(v, members)
+	data["member-billings"] = memberBillings
+
+	// total cost of member billings (for checksum)
+	data["total-member-billings"] = m.calcTotalMemberBillingsCost(memberBillings)
 
 	return &td, nil
 }
@@ -333,20 +337,31 @@ func (m *Repository) calcPerMemberBillings(log models.MileageLog, members []mode
 
 	for _, v := range members {
 		memberBilling := models.MemberMileageLogBilling{
-			Member: v,
-			RegularTripsCost: tripMap[v.ID],
+			Member:                v,
+			RegularTripsCost:      tripMap[v.ID],
 			LongDistanceTripsCost: ldMap[v.ID],
 		}
 
 		memberBillings = append(memberBillings, memberBilling)
-		
+
 	}
 
 	//fmt.Println(tripMap)
 	//fmt.Println(ldMap)
-	//fmt.Println(memberBillings)
+	fmt.Println(memberBillings)
 
 	return memberBillings
+}
+
+func (m *Repository) calcTotalMemberBillingsCost(billings []models.MemberMileageLogBilling) models.USD {
+	var totalUSD models.USD
+
+	for _, v := range billings {
+		totalUSD = totalUSD.AddUSD(v.RegularTripsCost)
+		totalUSD = totalUSD.AddUSD(v.LongDistanceTripsCost)
+	}
+
+	return totalUSD
 }
 
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
