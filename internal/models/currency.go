@@ -38,6 +38,14 @@ func (m USD) Multiply(f float64) USD {
 	return USD(x)
 }
 
+
+func (m USD) Divide(f float64) USD {
+	x := (float64(m) / f) + 0.5
+	return USD(x)
+}
+
+
+// AddUSD safely adds two USD prices together
 func (m USD) AddUSD(a USD) USD {
 	x := m.Float64()
 	y := a.Float64()

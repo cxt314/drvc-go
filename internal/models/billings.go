@@ -1,5 +1,11 @@
 package models
 
+type MemberMileageLogBilling struct {
+	Member                Member
+	RegularTripsCost      USD
+	LongDistanceTripsCost USD
+}
+
 type BillingMethod interface {
 	Name() string
 	TripCost(multiplier float64, UseSecondaryRate bool) USD

@@ -293,6 +293,7 @@ func (m *Repository) getBillingTemplateData(mileageLogId int) (*models.TemplateD
 	data["total-trip-cost"] = m.calcTotalTripCost(v)
 
 	// breakdown of cost by member
+	data["member-billings"] = m.calcPerMemberBillings(v, members)
 
 	return &td, nil
 }
@@ -306,6 +307,46 @@ func (m *Repository) calcTotalTripCost(log models.MileageLog) models.USD {
 	}
 
 	return totalCost
+}
+
+func (m *Repository) calcPerMemberBillings(log models.MileageLog, members []models.Member) []models.MemberMileageLogBilling {
+	var memberBillings []models.MemberMileageLogBilling
+
+	tripMap := make(map[int]models.USD)
+	ldMap := make(map[int]models.USD)
+
+	for _, v := range log.Trips {
+		numRiders := len(v.Riders)
+		tripShare := v.Cost().Divide(float64(numRiders))
+
+		for _, r := range v.Riders {
+			if v.LongDistanceDays > 0 {
+				// long distance trip, add to ldMap
+				ldMap[r.ID] = ldMap[r.ID].AddUSD(tripShare)
+
+			} else {
+				// regular trip, add to tripMap
+				tripMap[r.ID] = tripMap[r.ID].AddUSD(tripShare)
+			}
+		}
+	}
+
+	for _, v := range members {
+		memberBilling := models.MemberMileageLogBilling{
+			Member: v,
+			RegularTripsCost: tripMap[v.ID],
+			LongDistanceTripsCost: ldMap[v.ID],
+		}
+
+		memberBillings = append(memberBillings, memberBilling)
+		
+	}
+
+	//fmt.Println(tripMap)
+	//fmt.Println(ldMap)
+	//fmt.Println(memberBillings)
+
+	return memberBillings
 }
 
 func (m *Repository) TripsEdit(w http.ResponseWriter, r *http.Request) {
