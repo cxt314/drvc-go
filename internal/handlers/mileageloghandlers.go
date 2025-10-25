@@ -348,7 +348,7 @@ func (m *Repository) calcPerMemberBillings(log models.MileageLog, members []mode
 
 	//fmt.Println(tripMap)
 	//fmt.Println(ldMap)
-	fmt.Println(memberBillings)
+	//fmt.Println(memberBillings)
 
 	return memberBillings
 }
