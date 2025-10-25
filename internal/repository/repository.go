@@ -32,4 +32,5 @@ type DatabaseRepo interface {
 	GetTripByID(id int) (models.Trip, error)
 	UpdateTripByID(v models.Trip) error 
 	GetLaterTrips(v models.Trip) ([]models.Trip, error)
+	GetMileageLogsByYearMonth(year int, month int) ([]models.MileageLog, error)
 }

@@ -189,7 +189,7 @@ func (m *postgresDBRepo) AllMileageLogs() ([]models.MileageLog, error) {
 	return m.scanRowsToMileageLogs(rows)
 }
 
-// GetMileageLogByVehicleID returns a slice of all members that have status = active. Does not populate member aliases
+// GetMileageLogByVehicleID returns a slice of all Mileage Logs for a given vehicle
 func (m *postgresDBRepo) GetMileageLogsByVehicleID(vehicle_id int) ([]models.MileageLog, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
@@ -198,6 +198,24 @@ func (m *postgresDBRepo) GetMileageLogsByVehicleID(vehicle_id int) ([]models.Mil
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q, vehicle_id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// process query result into slice of members to return
+	return m.scanRowsToMileageLogs(rows)
+}
+
+// GetMileageLogsByYearMonth returns a slice of all Mileage Logs for a given year & month
+func (m *postgresDBRepo) GetMileageLogsByYearMonth(year int, month int) ([]models.MileageLog, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := fmt.Sprintf(`SELECT id, %s FROM mileage_logs WHERE year=$1 AND month=$2`, mileageLogCols)
+
+	// execute our DB query
+	rows, err := m.DB.QueryContext(ctx, q, year, month)
 	if err != nil {
 		return nil, err
 	}

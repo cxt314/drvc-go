@@ -21,7 +21,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
 
-	// vehicles handlers
+	// vehicles routes
 	mux.Get("/vehicles", handlers.Repo.VehicleList)
 	mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
 	mux.Post("/new-vehicle", handlers.Repo.VehicleCreatePost)
@@ -30,7 +30,7 @@ func routes(app *config.AppConfig) http.Handler {
 	//mux.Get("/vehicles/{id}/delete", handlers.Repo.VehicleDelete)
 	mux.Get("/vehicles/{id}/deactivate", handlers.Repo.VehicleDeactivate)
 
-	// members handlers
+	// members routes
 	mux.Get("/members", handlers.Repo.MemberList)
 	mux.Get("/new-member", handlers.Repo.MemberCreate)
 	mux.Post("/new-member", handlers.Repo.MemberCreatePost)
@@ -39,7 +39,7 @@ func routes(app *config.AppConfig) http.Handler {
 	//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
 	mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
 
-	// mileage logs handlers
+	// mileage logs routes
 	mux.Get("/mileage-logs", handlers.Repo.MileageLogList)
 	mux.Get("/mileage-logs/list/{id}", handlers.Repo.MileageLogListByVehicle)
 	mux.Get("/new-mileage-log", handlers.Repo.MileageLogCreate)
@@ -53,6 +53,9 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/trip-edit/{id}", handlers.Repo.EditTrip) // htmx handler
 	mux.Post("/trip-edit/{id}", handlers.Repo.EditTripPost) // htmx edit trip handler
 	mux.Get("/mileage-logs/{id}/billing", handlers.Repo.MileageLogBilling)
+
+	// billing routes
+	mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
 
 	// htmx routes
 	mux.Get("/remove-item", handlers.Repo.RemoveItem)

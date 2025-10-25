@@ -1,5 +1,16 @@
 package models
 
+type MileageLogBilling struct {
+	Log MileageLog
+	TotalTripCost USD
+	TotalMemberBillings USD
+	MemberBills map[int]MemberMileageLogBilling
+}
+
+type PerMemberBilling struct {
+
+}
+
 type MemberMileageLogBilling struct {
 	Member                Member
 	RegularTripsCost      USD

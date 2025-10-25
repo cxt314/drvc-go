@@ -1,0 +1,45 @@
+{{template "base" .}}
+
+{{define "title"}}Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}{{end}}
+
+{{define "content"}}
+    <div class="container">
+        {{ $v := index .Data "mileage-log-bills" }}
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-3">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
+            
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <table class="table table-sm table-striped">
+                                <tr>
+                                    <th scope="col">Member</th>
+                                    {{ range $v }}
+                                    <th scope="col">{{ .Log.Vehicle.Name}}</th>
+                                    <th scope="col">{{ .Log.Vehicle.Name}} LD</th>
+                                    {{ end }}
+                                </tr>
+                                {{ range index .Data "member-billings"}}
+                                    <tr>
+                                        <td>{{ .Member.Name }}</td>
+                                        <td>{{ .RegularTripsCost }}</td>
+                                        <td>{{ .LongDistanceTripsCost }}</td>
+                                    </tr>
+                                {{ end }}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+{{end}}
+
