@@ -4,7 +4,8 @@
 
 {{define "content"}}
     <div class="container">
-        {{ $v := index .Data "mileage-log-bills" }}
+        {{ $v := index .Data "bill-display" }}
+        {{ $k := index .Data "key-order" }}
         <div class="row">
             <div class="col">
                 <h1 class="mt-3">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
@@ -19,19 +20,20 @@
                         <div class="col">
                             <table class="table table-sm table-striped">
                                 <tr>
-                                    <th scope="col">Member</th>
-                                    {{ range $v }}
-                                    <th scope="col">{{ .Log.Vehicle.Name}}</th>
-                                    <th scope="col">{{ .Log.Vehicle.Name}} LD</th>
+                                    {{range $k }}
+                                        <th scope="col">{{ . }}</th>
                                     {{ end }}
                                 </tr>
-                                {{ range index .Data "member-billings"}}
+                                <tr>
+                                    {{range $row := $v}}
                                     <tr>
-                                        <td>{{ .Member.Name }}</td>
-                                        <td>{{ .RegularTripsCost }}</td>
-                                        <td>{{ .LongDistanceTripsCost }}</td>
+                                        {{ range $k }}
+                                            <td>{{ index $row .}}</td>
+                                        {{ end }}
                                     </tr>
-                                {{ end }}
+                                    {{end}}
+                                </tr>
+
                             </table>
                         </div>
                     </div>

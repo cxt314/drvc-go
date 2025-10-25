@@ -97,6 +97,11 @@ func (m *postgresDBRepo) scanRowsToMileageLogs(rows *sql.Rows) ([]models.Mileage
 
 		t.Vehicle = vehicle
 
+		t.Trips, err = m.GetTripsByMileageLogID(t.ID)
+		if err != nil {
+			return logs, err
+		}
+
 		logs = append(logs, t)
 	}
 	err := rows.Err()

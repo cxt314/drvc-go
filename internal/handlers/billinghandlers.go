@@ -132,17 +132,32 @@ func (m *Repository) getMileageLogBilling(log models.MileageLog, members []model
 	return logBilling, nil
 }
 
-func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.MileageLogBilling, members []models.Member) [][]string {
-	var displayArray [][]string
+func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.MileageLogBilling, members []models.Member, vehicles []models.Vehicle) ([]map[string]string, []string) {
+	var displayArray []map[string]string
+	var keyOrder []string
 
-
+	//fmt.Println(vehicleBills)
 	// create & append header row
-	var header []string
-	header = append(header, "Member")
+	keyOrder = append(keyOrder, "Member")
+	for _, v := range vehicles {
+		keyOrder = append(keyOrder, v.Name)
+		keyOrder = append(keyOrder, v.Name+" LD")
+	}
 
-	displayArray = append(displayArray, header)
+	for _, i := range members {
+		row := make(map[string]string)
+		row["Member"] = i.Name
 
-	return displayArray
+		for _, v := range vehicles {
+			row[v.Name] = vehicleBills[v.Name].MemberBills[i.ID].RegularTripsCost.String()
+			row[v.Name+" LD"] = vehicleBills[v.Name].MemberBills[i.ID].LongDistanceTripsCost.String()
+		}
+
+		displayArray = append(displayArray, row)
+	}
+
+	//fmt.Println(displayArray)
+	return displayArray, keyOrder
 }
 
 func (m *Repository) getSummaryBillingTemplateData(year int, month int) (*models.TemplateData, error) {
@@ -162,12 +177,13 @@ func (m *Repository) getSummaryBillingTemplateData(year int, month int) (*models
 
 	mileageLogBills := make(map[string]models.MileageLogBilling)
 
+	//fmt.Println(logs)
 	for _, v := range logs {
 		mileageLogBill, err := m.getMileageLogBilling(v, members)
 		if err != nil {
 			return &td, err
 		}
-
+		//fmt.Println(mileageLogBill.MemberBills)
 		mileageLogBills[v.Vehicle.Name] = mileageLogBill
 	}
 
@@ -177,9 +193,13 @@ func (m *Repository) getSummaryBillingTemplateData(year int, month int) (*models
 		return &td, err
 	}
 
+	billDisplay, keyOrder := m.getSummaryBillingDisplay(mileageLogBills, members, vehicles)
+
 	data := make(map[string]interface{})
 	data["vehicles"] = vehicles
 	data["mileage-log-bills"] = mileageLogBills
+	data["bill-display"] = billDisplay
+	data["key-order"] = keyOrder
 
 	intmap := make(map[string]int)
 	intmap["year"] = year
