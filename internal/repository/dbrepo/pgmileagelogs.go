@@ -90,6 +90,10 @@ func (m *postgresDBRepo) scanRowsToMileageLogs(rows *sql.Rows) ([]models.Mileage
 			return logs, err
 		}
 
+		// calculate Distance
+		t.Distance = t.EndOdometer - t.StartOdometer
+
+		// populate vehicle
 		vehicle, err := m.GetVehicleByID(t.Vehicle.ID)
 		if err != nil {
 			return logs, err
@@ -97,6 +101,7 @@ func (m *postgresDBRepo) scanRowsToMileageLogs(rows *sql.Rows) ([]models.Mileage
 
 		t.Vehicle = vehicle
 
+		// populate trips
 		t.Trips, err = m.GetTripsByMileageLogID(t.ID)
 		if err != nil {
 			return logs, err
@@ -251,6 +256,9 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 		return v, err
 	}
 
+	// calculate Distance field
+	v.Distance = v.EndOdometer - v.StartOdometer
+
 	// get vehicle info
 	tmpVehicle, err := m.GetVehicleByID(v.Vehicle.ID)
 	if err != nil {
@@ -258,6 +266,7 @@ func (m *postgresDBRepo) GetMileageLogByID(id int) (models.MileageLog, error) {
 	}
 	v.Vehicle = tmpVehicle
 
+	// get trip info
 	v.Trips, err = m.GetTripsByMileageLogID(id)
 	if err != nil {
 		return v, err

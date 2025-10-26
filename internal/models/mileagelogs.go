@@ -14,9 +14,20 @@ type MileageLog struct {
 	Month         int
 	StartOdometer int
 	EndOdometer   int
+	Distance      int // calculated by EndOdometer - StartOdometer
 	Trips         []Trip
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+func (m MileageLog) TripDistance() float64 {
+	total := 0.0
+
+	for _, v := range m.Trips {
+		total += v.Distance()
+	}
+
+	return total
 }
 
 // Trip describes the trip model

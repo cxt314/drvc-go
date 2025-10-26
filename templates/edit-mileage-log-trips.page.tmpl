@@ -29,9 +29,13 @@
                         <p><b>Vehicle:</b> {{ $v.Vehicle.Name }}</p>
                         <p><b>Year/Month:</b> {{ $v.Year }}/{{ $v.Month }}</p>
                         <p><b>Odometer Start:</b> {{ $v.StartOdometer }}</p>
-                        <p><b>Odometer End:</b> {{ $v.EndOdometer }}</p>
+                        <p><b>Odometer End:</b> {{ $v.EndOdometer }}</p>  
                     </div>
-                    <div class="col-6"></div>
+                    <div class="col">
+                        <p><b>EndOdo - StartOdo:</b> {{ $v.Distance }}</p>
+                        <p><b>Trip Distance:</b> <span id="trip-distance">{{ $v.TripDistance }}</span></p>
+                    </div>
+                    <div class="col-4"></div>
                     <div class="col">
                         <a href="/mileage-logs/{{$v.ID}}"><button type="button" class="btn btn-primary">
                             Edit Mileage Log Details

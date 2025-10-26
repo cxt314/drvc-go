@@ -353,6 +353,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripForm", td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripTableSwap", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripDistanceSwap", td)
 
 	//fmt.Println(buf.String())
 
@@ -498,6 +499,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwap", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripDistanceSwap", td)
 
 	buf.WriteTo(w)
 

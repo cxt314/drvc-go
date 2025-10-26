@@ -331,3 +331,8 @@
     </tbody>
 </table>
 {{end}}
+
+{{define "tripDistanceSwap"}}
+{{ $v := index .Data "mileage-log" }}
+<span id="trip-distance" hx-swap-oob="true">{{ $v.TripDistance }}</span>
+{{end}}
