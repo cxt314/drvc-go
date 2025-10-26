@@ -20,71 +20,6 @@ func (m *Repository) BillingIndex(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/billings/%04d/%02d", year, month), http.StatusSeeOther)
 }
 
-// // MemberCreate displays the page to create a new member
-// func (m *Repository) MemberCreate(w http.ResponseWriter, r *http.Request) {
-// 	render.Template(w, r, "edit-member.page.tmpl", &models.TemplateData{
-// 		Form: forms.New(nil),
-// 	})
-// }
-
-// // MemberCreatePost processes the POST request for creating a new member
-// func (m *Repository) MemberCreatePost(w http.ResponseWriter, r *http.Request) {
-// 	// parse received form values into member object
-// 	v := models.Member{}
-// 	err := helpers.ParseFormToMember(r, &v)
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	form := forms.New(r.PostForm)
-// 	// do form validation checks
-
-// 	if !form.Valid() {
-// 		data := make(map[string]interface{})
-// 		data["member"] = v
-
-// 		render.Template(w, r, "edit-member.page.tmpl", &models.TemplateData{
-// 			Form: form,
-// 			Data: data,
-// 		})
-// 		return
-// 	}
-
-// 	err = m.DB.InsertMember(v)
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	http.Redirect(w, r, "/members", http.StatusSeeOther)
-// }
-
-// // MemberEdit shows the edit form for a member by id
-// func (m *Repository) MemberEdit(w http.ResponseWriter, r *http.Request) {
-// 	exploded := strings.Split(r.RequestURI, "/")
-// 	id, err := strconv.Atoi(exploded[2])
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	// get member from database
-// 	v, err := m.DB.GetMemberByID(id)
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	data := make(map[string]interface{})
-// 	data["member"] = v
-
-// 	render.Template(w, r, "edit-member.page.tmpl", &models.TemplateData{
-// 		Form: forms.New(nil),
-// 		Data: data,
-// 	})
-// }
-
 // BillingSummaryYearMonth gives a summary billing for each member and each vehicle by year and month
 func (m *Repository) BillingSummaryYearMonth(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
@@ -127,6 +62,7 @@ func (m *Repository) getMileageLogBilling(log models.MileageLog, members []model
 	return logBilling, nil
 }
 
+// getSummaryBillingDisplay creates a slice of maps for a 2D display of all member billings per vehicle
 func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.MileageLogBilling, members []models.Member, vehicles []models.Vehicle) ([]map[string]string, []string) {
 	var displayArray []map[string]string
 	var keyOrder []string
@@ -138,16 +74,22 @@ func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.Mil
 		keyOrder = append(keyOrder, v.Name)
 		keyOrder = append(keyOrder, v.Name+" LD")
 	}
+	keyOrder = append(keyOrder, "Total")
 
 	for _, i := range members {
 		row := make(map[string]string)
 		row["Member"] = i.Name
 
+		memberTotal := models.ToUSD(0.0)
+
 		for _, v := range vehicles {
 			row[v.Name] = vehicleBills[v.Name].MemberBills[i.ID].RegularTripsCost.String()
+			memberTotal = memberTotal.AddUSD(vehicleBills[v.Name].MemberBills[i.ID].RegularTripsCost)
 			row[v.Name+" LD"] = vehicleBills[v.Name].MemberBills[i.ID].LongDistanceTripsCost.String()
+			memberTotal = memberTotal.AddUSD(vehicleBills[v.Name].MemberBills[i.ID].LongDistanceTripsCost)
 		}
 
+		row["Total"] = memberTotal.String()
 		displayArray = append(displayArray, row)
 	}
 
@@ -298,40 +240,3 @@ func (m *Repository) calcTotalMemberBillingsCost(billings map[int]models.MemberM
 
 	return totalUSD
 }
-
-// // MemberDeactivate updates a member's active status by id
-// func (m *Repository) MemberDeactivate(w http.ResponseWriter, r *http.Request) {
-// 	exploded := strings.Split(r.RequestURI, "/")
-// 	id, err := strconv.Atoi(exploded[2])
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	// update member set is_active to false
-// 	err = m.DB.UpdateMemberActiveByID(id, false)
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-
-// 	// redirect to members list after making member inactive
-// 	http.Redirect(w, r, "/members", http.StatusSeeOther)
-// }
-
-// func (m *Repository) AddAlias(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "text/html")
-// 	html := `
-// 		<div class="col-3 mb-2 alias-group">
-// 			<div class="input-group">
-// 				<input class="form-control" type="text" name="aliases">
-// 				<span class="input-group-text">
-// 					<button type="button" class="btn-close" aria-label="Close"
-// 						hx-get="/remove-item" hx-trigger="click" hx-target="closest .alias-group" hx-swap="outerHTML" hx-confirm="Delete alias?"></button>
-// 				</span>
-// 			</div>
-// 		</div>
-// 		`
-
-// 	w.Write([]byte(html))
-// }
