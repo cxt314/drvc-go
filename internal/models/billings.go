@@ -7,10 +7,6 @@ type MileageLogBilling struct {
 	MemberBills map[int]MemberMileageLogBilling
 }
 
-type PerMemberBilling struct {
-
-}
-
 type MemberMileageLogBilling struct {
 	Member                Member
 	RegularTripsCost      USD
