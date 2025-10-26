@@ -55,6 +55,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/mileage-logs/{id}/billing", handlers.Repo.MileageLogBilling)
 
 	// billing routes
+	mux.Get("/billings", handlers.Repo.BillingIndex)
 	mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
 
 	// htmx routes

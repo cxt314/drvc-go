@@ -1,29 +1,24 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
 
-// // MemberList displays a list of all members
-// func (m *Repository) MemberList(w http.ResponseWriter, r *http.Request) {
-// 	members, err := m.DB.GetMemberByActive(true)
-// 	if err != nil {
-// 		helpers.ServerError(w, err)
-// 		return
-// 	}
-// 	data := make(map[string]interface{})
-// 	data["members"] = members
+// BillingIndex redirects to Billing Summary for the previous year/month
+func (m *Repository) BillingIndex(w http.ResponseWriter, r *http.Request) {
+	year := time.Now().Year()
+	month := time.Now().Month() - 1
 
-// 	render.Template(w, r, "member-list.page.tmpl", &models.TemplateData{
-// 		Data: data,
-// 	})
-// }
+	http.Redirect(w, r, fmt.Sprintf("/billings/%04d/%02d", year, month), http.StatusSeeOther)
+}
 
 // // MemberCreate displays the page to create a new member
 // func (m *Repository) MemberCreate(w http.ResponseWriter, r *http.Request) {
