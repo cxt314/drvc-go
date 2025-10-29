@@ -8,14 +8,61 @@
         {{ $k := index .Data "key-order" }}
         <div class="row">
             <div class="col">
-                <h1 class="mt-3">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
+                <h3 class="mt-3">Select year/month to view</h1>
             
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <form method="post" action="/billings" class="" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="year">Year:</label>
+                                <input class="form-control"
+                                    id="year" autocomplete="off" type='number' min="1900" max="2200"
+                                    name='year' value="{{index .IntMap "year"}}" required>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="month">Month:</label>
+                                <select class="form-select" id="month" name="month" required>
+                                {{ $month := index .IntMap "month" }}
+                                    <option value="01" {{ if eq 1 $month }}selected {{ end }}>January</option>
+                                    <option value="02" {{ if eq 2 $month }}selected {{ end }}>February</option>
+                                    <option value="03" {{ if eq 3 $month }}selected {{ end }}>March</option>
+                                    <option value="04" {{ if eq 4 $month }}selected {{ end }}>April</option>
+                                    <option value="05" {{ if eq 5 $month }}selected {{ end }}>May</option>
+                                    <option value="06" {{ if eq 6 $month }}selected {{ end }}>June</option>
+                                    <option value="07" {{ if eq 7 $month }}selected {{ end }}>July</option>
+                                    <option value="08" {{ if eq 8 $month }}selected {{ end }}>August</option>
+                                    <option value="09" {{ if eq 9 $month }}selected {{ end }}>September</option>
+                                    <option value="10" {{ if eq 10 $month }}selected {{ end }}>October</option>
+                                    <option value="11" {{ if eq 11 $month }}selected {{ end }}>November</option>
+                                    <option value="12" {{ if eq 12 $month }}selected {{ end }}>December</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-primary" value="Submit">
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 
         <div class="row mt-2">
             <div class="card">
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h1 class="mt-3 card-title">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
+                        
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col">
                             <table class="table table-sm table-striped">

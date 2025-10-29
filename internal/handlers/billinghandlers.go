@@ -20,6 +20,27 @@ func (m *Repository) BillingIndex(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/billings/%04d/%02d", year, month), http.StatusSeeOther)
 }
 
+func (m *Repository) BillingSummaryPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	// parse year & month str to int
+	year, err := strconv.Atoi(r.Form.Get("year"))
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	// parse year str to int
+	month, err := strconv.Atoi(r.Form.Get("month"))
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/billings/%04d/%02d", year, month), http.StatusSeeOther)
+}
+
 // BillingSummaryYearMonth gives a summary billing for each member and each vehicle by year and month
 func (m *Repository) BillingSummaryYearMonth(w http.ResponseWriter, r *http.Request) {
 	exploded := strings.Split(r.RequestURI, "/")
