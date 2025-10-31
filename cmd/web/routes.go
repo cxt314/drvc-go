@@ -63,6 +63,10 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/remove-item", handlers.Repo.RemoveItem)
 	mux.Get("/members/add-alias", handlers.Repo.AddAlias)
 
+	// authentication routes
+	mux.Get("/users/login", handlers.Repo.UserLogin)
+	mux.Post("/users/login", handlers.Repo.UserLoginPost)
+
 	// sample reservation routes
 	mux.Get("/make-reservation", handlers.Repo.Reservation)
 	mux.Post("/make-reservation", handlers.Repo.PostReservation)
