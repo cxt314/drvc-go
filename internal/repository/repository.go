@@ -5,6 +5,8 @@ import "github.com/cxt314/drvc-go/internal/models"
 type DatabaseRepo interface {
 	AllUsers() ([]models.User, error)
 	UpdateUser(v models.User) error
+	GetUserByID(id int) (models.User, error) 
+	Authenticate(email, testPassword string) (int, string, error)
 
 	InsertVehicle(v models.Vehicle) error
 	AllVehicles() ([]models.Vehicle, error)

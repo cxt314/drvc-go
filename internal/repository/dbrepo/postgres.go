@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cxt314/drvc-go/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const contextTimeout = 3 * time.Second
@@ -16,7 +17,7 @@ func (m *postgresDBRepo) AllUsers() ([]models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
-	q := `SELECT first_name, last_name, email, password, access_level, created_at, updated_at
+	q := `SELECT id, first_name, last_name, email, password, access_level, created_at, updated_at
 		FROM users`
 
 	// execute our DB query
@@ -47,6 +48,29 @@ func (m *postgresDBRepo) AllUsers() ([]models.User, error) {
 	return users, nil
 }
 
+// GetUserByID returns a user by id
+func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := `SELECT id, first_name, last_name, email, password, access_level, created_at, updated_at
+		FROM users WHERE id=$1`
+
+	// execute our DB query
+	row := m.DB.QueryRowContext(ctx, q, id)
+
+	// scan results into user
+	u := models.User{}
+
+	err := row.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password, &u.AccessLevel,
+		&u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		return u, err
+	}
+
+	return u, nil
+}
+
 // UpdateUser updates a user in the database
 func (m *postgresDBRepo) UpdateUser(v models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
@@ -75,6 +99,32 @@ func (m *postgresDBRepo) UpdateUser(v models.User) error {
 	return nil
 }
 
+// Authenticate authenticates a user
+func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	var id int
+	var hashedPassword string
+
+	row := m.DB.QueryRowContext(ctx, "select id, password from users where email = $1", email)
+	err := row.Scan(&id, &hashedPassword)
+	if err != nil {
+		return id, "", err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return 0, "", errors.New("incorrect password")
+	} else if err != nil {
+		return 0, "", err
+	}
+
+	// successfully authenticated
+	return id, hashedPassword, nil
+}
+
+// runInTx takes a func and runs it in a transaction
 func runInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
 	tx, err := db.Begin()
 	if err != nil {
@@ -94,6 +144,7 @@ func runInTx(db *sql.DB, fn func(tx *sql.Tx) error) error {
 	return err
 }
 
+// runInTxReturnID takes a func and runs it in a transaction, returning the ID of the newly inserted item
 func runInTxReturnID(db *sql.DB, fn func(tx *sql.Tx) (int, error)) (int, error) {
 	tx, err := db.Begin()
 	if err != nil {
