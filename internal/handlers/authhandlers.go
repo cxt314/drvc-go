@@ -45,7 +45,7 @@ func (m *Repository) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 
 		m.App.Session.Put(r.Context(), "error", "Invalid login credentials")
-		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 		return
 	}
 
