@@ -17,60 +17,66 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Use(NoSurf)
 	mux.Use(SessionLoad)
 
-	// routes
+	// public routes
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
 
-	// vehicles routes
-	mux.Get("/vehicles", handlers.Repo.VehicleList)
-	mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
-	mux.Post("/new-vehicle", handlers.Repo.VehicleCreatePost)
-	mux.Get("/vehicles/{id}", handlers.Repo.VehicleEdit)
-	mux.Post("/vehicles/{id}", handlers.Repo.VehicleEditPost)
-	//mux.Get("/vehicles/{id}/delete", handlers.Repo.VehicleDelete)
-	mux.Get("/vehicles/{id}/deactivate", handlers.Repo.VehicleDeactivate)
-
-	// members routes
-	mux.Get("/members", handlers.Repo.MemberList)
-	mux.Get("/new-member", handlers.Repo.MemberCreate)
-	mux.Post("/new-member", handlers.Repo.MemberCreatePost)
-	mux.Get("/members/{id}", handlers.Repo.MemberEdit)
-	mux.Post("/members/{id}", handlers.Repo.MemberEditPost)
-	//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
-	mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
-
-	// mileage logs routes
-	mux.Get("/mileage-logs", handlers.Repo.MileageLogList)
-	mux.Get("/mileage-logs/list/{id}", handlers.Repo.MileageLogListByVehicle)
-	mux.Get("/new-mileage-log", handlers.Repo.MileageLogCreate)
-	mux.Post("/new-mileage-log", handlers.Repo.MileageLogCreatePost)
-	mux.Get("/mileage-logs/{id}", handlers.Repo.MileageLogEdit)
-	mux.Post("/mileage-logs/{id}", handlers.Repo.MileageLogEditPost)
-	mux.Get("/mileage-logs/{id}/delete", handlers.Repo.MileageLogDelete)
-	mux.Get("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEdit)
-	//mux.Post("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEditPost)
-	mux.Post("/mileage-logs/{id}/add-trip", handlers.Repo.AddTripPost) // htmx handler
-	mux.Get("/trip-edit/{id}", handlers.Repo.EditTrip)                 // htmx handler
-	mux.Post("/trip-edit/{id}", handlers.Repo.EditTripPost)            // htmx edit trip handler
-	mux.Get("/mileage-logs/{id}/billing", handlers.Repo.MileageLogBilling)
-
-	// billing routes
-	mux.Get("/billings", handlers.Repo.BillingIndex)
-	mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
-	mux.Post("/billings", handlers.Repo.BillingSummaryPost)
-
-	// htmx routes
-	mux.Get("/remove-item", handlers.Repo.RemoveItem)
-	mux.Get("/members/add-alias", handlers.Repo.AddAlias)
-
-	// authentication routes
+	// authentication
 	mux.Get("/users/login", handlers.Repo.UserLogin)
 	mux.Post("/users/login", handlers.Repo.UserLoginPost)
+	mux.Get("/users/logout", handlers.Repo.Logout)
 
-	// sample reservation routes
+	// sample reservation
 	mux.Get("/make-reservation", handlers.Repo.Reservation)
 	mux.Post("/make-reservation", handlers.Repo.PostReservation)
 	mux.Get("/reservation-summary", handlers.Repo.ReservationSummary)
+
+	// protected routes
+	mux.Group(func(mux chi.Router) {
+		mux.Use(Auth)
+
+		// vehicles routes
+		mux.Get("/vehicles", handlers.Repo.VehicleList)
+		mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
+		mux.Post("/new-vehicle", handlers.Repo.VehicleCreatePost)
+		mux.Get("/vehicles/{id}", handlers.Repo.VehicleEdit)
+		mux.Post("/vehicles/{id}", handlers.Repo.VehicleEditPost)
+		//mux.Get("/vehicles/{id}/delete", handlers.Repo.VehicleDelete)
+		mux.Get("/vehicles/{id}/deactivate", handlers.Repo.VehicleDeactivate)
+
+		// members routes
+		mux.Get("/members", handlers.Repo.MemberList)
+		mux.Get("/new-member", handlers.Repo.MemberCreate)
+		mux.Post("/new-member", handlers.Repo.MemberCreatePost)
+		mux.Get("/members/{id}", handlers.Repo.MemberEdit)
+		mux.Post("/members/{id}", handlers.Repo.MemberEditPost)
+		//mux.Get("/members/{id}/delete", handlers.Repo.MemberDelete)
+		mux.Get("/members/{id}/deactivate", handlers.Repo.MemberDeactivate)
+
+		// mileage logs routes
+		mux.Get("/mileage-logs", handlers.Repo.MileageLogList)
+		mux.Get("/mileage-logs/list/{id}", handlers.Repo.MileageLogListByVehicle)
+		mux.Get("/new-mileage-log", handlers.Repo.MileageLogCreate)
+		mux.Post("/new-mileage-log", handlers.Repo.MileageLogCreatePost)
+		mux.Get("/mileage-logs/{id}", handlers.Repo.MileageLogEdit)
+		mux.Post("/mileage-logs/{id}", handlers.Repo.MileageLogEditPost)
+		mux.Get("/mileage-logs/{id}/delete", handlers.Repo.MileageLogDelete)
+		mux.Get("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEdit)
+		//mux.Post("/mileage-logs/{id}/edit-trips", handlers.Repo.TripsEditPost)
+		mux.Post("/mileage-logs/{id}/add-trip", handlers.Repo.AddTripPost) // htmx handler
+		mux.Get("/trip-edit/{id}", handlers.Repo.EditTrip)                 // htmx handler
+		mux.Post("/trip-edit/{id}", handlers.Repo.EditTripPost)            // htmx edit trip handler
+		mux.Get("/mileage-logs/{id}/billing", handlers.Repo.MileageLogBilling)
+
+		// billing routes
+		mux.Get("/billings", handlers.Repo.BillingIndex)
+		mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
+		mux.Post("/billings", handlers.Repo.BillingSummaryPost)
+
+		// htmx routes
+		mux.Get("/remove-item", handlers.Repo.RemoveItem)
+		mux.Get("/members/add-alias", handlers.Repo.AddAlias)
+	})
 
 	// create a fileserver for serving static files
 	fileServer := http.FileServer(http.Dir("./static/"))

@@ -53,3 +53,11 @@ func (m *Repository) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	m.App.Session.Put(r.Context(), "flash", "Logged in successfully")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// Logout logs a user out
+func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
+	_ = m.App.Session.Destroy(r.Context())
+	_ = m.App.Session.RenewToken(r.Context())
+
+	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
+}
