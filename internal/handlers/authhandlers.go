@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/cxt314/drvc-go/internal/forms"
 	"github.com/cxt314/drvc-go/internal/helpers"
@@ -88,14 +90,76 @@ func (m *Repository) UserEditIndex(w http.ResponseWriter, r *http.Request) {
 
 // UserEdit displays form to update user
 func (m *Repository) UserEdit(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	// get user from database
+	v, err := m.DB.GetUserByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["user"] = v
+
+	render.Template(w, r, "edit-user.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+	})
 }
 
 // UserEditPost updates user info from submitted form
 func (m *Repository) UserEditPost(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	// get user from database
+	v, err := m.DB.GetUserByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// parse form into fetched user
+	err = helpers.ParseFormToUser(r, &v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	// do form validation checks
+	form.Required("email", "first-name", "last-name")
+	form.IsEmail("email")
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["user"] = v
+
+		render.Template(w, r, "edit-user.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	err = m.DB.UpdateUser(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	
+	m.App.Session.Put(r.Context(), "flash", "Updated user successfully")
+	http.Redirect(w, r, fmt.Sprintf("/users/update/%d", id), http.StatusSeeOther)
 }
 
 // UserCreate displays form to create a new user
