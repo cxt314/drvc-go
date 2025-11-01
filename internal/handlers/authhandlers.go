@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -60,4 +61,40 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 	_ = m.App.Session.RenewToken(r.Context())
 
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
+}
+
+// UserList lists all users
+func (m *Repository) UserList(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+}
+
+// UserEditIndex redirects to the currently logged-in user's edit page
+func (m *Repository) UserEditIndex(w http.ResponseWriter, r *http.Request) {
+	id := m.App.Session.GetInt(r.Context(), "user_id")
+	http.Redirect(w, r, fmt.Sprintf("/users/update/%d", id), http.StatusSeeOther)
+}
+
+// UserEdit displays form to update user
+func (m *Repository) UserEdit(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+}
+
+// UserEditPost updates user info from submitted form
+func (m *Repository) UserEditPost(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+}
+
+// UserCreate displays form to create a new user
+func (m *Repository) UserCreate(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+}
+
+// UserCreatePost creates a new user
+func (m *Repository) UserCreatePost(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
 }

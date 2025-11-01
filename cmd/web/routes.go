@@ -35,6 +35,14 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Group(func(mux chi.Router) {
 		mux.Use(Auth)
 
+		// user management
+		mux.Get("/users", handlers.Repo.UserList)
+		mux.Get("/users/update", handlers.Repo.UserEditIndex)
+		mux.Get("/users/update/{id}", handlers.Repo.UserEdit)
+		mux.Post("/users/update/{id}", handlers.Repo.UserEditPost)
+		mux.Get("/users/create", handlers.Repo.UserCreate)
+		mux.Post("/users/create", handlers.Repo.UserCreatePost)
+
 		// vehicles routes
 		mux.Get("/vehicles", handlers.Repo.VehicleList)
 		mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
