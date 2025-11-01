@@ -157,7 +157,7 @@ func (m *Repository) UserEditPost(w http.ResponseWriter, r *http.Request) {
 		helpers.ServerError(w, err)
 		return
 	}
-	
+
 	m.App.Session.Put(r.Context(), "flash", "Updated user successfully")
 	http.Redirect(w, r, fmt.Sprintf("/users/update/%d", id), http.StatusSeeOther)
 }
@@ -208,12 +208,77 @@ func (m *Repository) UserCreatePost(w http.ResponseWriter, r *http.Request) {
 
 // UserEditPassword displays form to update user password
 func (m *Repository) UserEditPassword(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	// get user from database
+	v, err := m.DB.GetUserByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["user"] = v
+
+	render.Template(w, r, "edit-user-pw.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+	})
 }
 
 // UserEditPasswordPost updates user password
 func (m *Repository) UserEditPasswordPost(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	// get user from database
+	v, err := m.DB.GetUserByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	// do form validation checks
+	form.Required("current-password", "password", "password-confirm")
+	_, _, err = m.DB.Authenticate(v.Email, r.Form.Get("current-password"))
+	if err != nil {
+		log.Println(err)
+		form.Errors.Add("current-password", "Invalid password")
+	}
+	form.MinLength("password", 8, r)
+	form.IsEqual("password", "password-confirm")
+
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["user"] = v
+
+		render.Template(w, r, "edit-user-pw.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	// update user with new password from form
+	v.Password = r.Form.Get("password")
+	
+	err = m.DB.UpdateUserPassword(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Updated password successfully")
+	http.Redirect(w, r, fmt.Sprintf("/users/update/%d", id), http.StatusSeeOther)
 }
