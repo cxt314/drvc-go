@@ -67,6 +67,13 @@ func (f *Form) IsEmail(field string) {
 	}
 }
 
+// IsEqual checks that the value in two fields is equal
+func (f *Form) IsEqual(field string, match string) {
+	if f.Get(field) != f.Get(match) {
+		f.Errors.Add(field, "Passwords must match")
+	}
+}
+
 func (f *Form) IsValidEndMileage(field string, originalStartMileage int, originalEndMileage int, nextTripEndMileage int) {
 	newEndMileage, err := strconv.Atoi(f.Get(field))
 	if err != nil {

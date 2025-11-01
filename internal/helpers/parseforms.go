@@ -90,6 +90,27 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 	return nil
 }
 
+
+func ParseFormToUser(r *http.Request, v *models.User) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+	
+	// parse string fields
+	v.FirstName = r.Form.Get("first-name")
+	v.LastName = r.Form.Get("last-name")
+	v.Email = r.Form.Get("email")
+	v.Password = r.Form.Get("password")
+
+	// all users get same access level
+	v.AccessLevel = 1
+	
+	//log.Println(v)
+
+	return nil
+}
+
 func ParseFormToMileageLog(r *http.Request, v *models.MileageLog) error {
 	err := r.ParseForm()
 	if err != nil {

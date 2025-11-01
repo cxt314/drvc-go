@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/cxt314/drvc-go/internal/forms"
+	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
 )
@@ -89,12 +90,56 @@ func (m *Repository) UserEditPost(w http.ResponseWriter, r *http.Request) {
 
 // UserCreate displays form to create a new user
 func (m *Repository) UserCreate(w http.ResponseWriter, r *http.Request) {
-
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	render.Template(w, r, "edit-user.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
 }
 
 // UserCreatePost creates a new user
 func (m *Repository) UserCreatePost(w http.ResponseWriter, r *http.Request) {
+	// parse received form values into user object
+	v := models.User{}
+	err := helpers.ParseFormToUser(r, &v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	// do form validation checks
+	form.Required("email", "password", "first-name", "last-name")
+	form.IsEmail("email")
+	form.MinLength("password", 8, r)
+	form.IsEqual("password", "password-confirm")
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["user"] = v
+
+		render.Template(w, r, "edit-user.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	err = m.DB.InsertUser(v)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/users", http.StatusSeeOther)
+}
+
+// UserEditPassword displays form to update user password
+func (m *Repository) UserEditPassword(w http.ResponseWriter, r *http.Request) {
+
+	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+}
+
+// UserEditPasswordPost updates user password
+func (m *Repository) UserEditPasswordPost(w http.ResponseWriter, r *http.Request) {
 
 	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
 }
