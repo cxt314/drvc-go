@@ -18,7 +18,7 @@ func (m *postgresDBRepo) AllUsers() ([]models.User, error) {
 	defer cancel()
 
 	q := `SELECT id, first_name, last_name, email, password, access_level, created_at, updated_at
-		FROM users`
+		FROM users ORDER BY first_name, last_name`
 
 	// execute our DB query
 	rows, err := m.DB.QueryContext(ctx, q)
