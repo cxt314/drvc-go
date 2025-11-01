@@ -82,6 +82,7 @@ func (m *postgresDBRepo) UpdateUser(v models.User) error {
 			email = $3,
 			access_level = $4,
 			updated_at = $5
+		WHERE id = $6
 		`
 
 	_, err := m.DB.ExecContext(ctx, q,
@@ -90,6 +91,60 @@ func (m *postgresDBRepo) UpdateUser(v models.User) error {
 		v.Email,
 		v.AccessLevel,
 		time.Now(),
+		v.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// generatePasswordHash takes a password string and returns a hashed password string
+func generatePasswordHash(pw string) string {
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(pw), 12)
+
+	return string(hashedPassword)
+}
+
+// InsertUser inserts a User into the database
+func (m *postgresDBRepo) InsertUser(v models.User) error {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	stmt := `INSERT INTO users (first_name, last_name, email, password, access_level, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	hashedPassword := generatePasswordHash(v.Password)
+
+	_, err := m.DB.ExecContext(ctx, stmt,
+		v.FirstName, v.LastName, v.Email, hashedPassword, v.AccessLevel,
+		time.Now(), time.Now())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdateUserPassword updates the password for a given user
+func (m *postgresDBRepo) UpdateUserPassword(v models.User) error {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := `UPDATE users SET
+			password = $1,
+			updated_at = $2
+		WHERE id = $3
+		`
+	hashedPassword := generatePasswordHash(v.Password)
+
+	_, err := m.DB.ExecContext(ctx, q,
+		hashedPassword,
+		time.Now(),
+		v.ID,
 	)
 
 	if err != nil {

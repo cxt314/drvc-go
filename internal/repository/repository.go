@@ -7,6 +7,8 @@ type DatabaseRepo interface {
 	UpdateUser(v models.User) error
 	GetUserByID(id int) (models.User, error) 
 	Authenticate(email, testPassword string) (int, string, error)
+	UpdateUserPassword(v models.User) error
+	InsertUser(v models.User) error
 
 	InsertVehicle(v models.Vehicle) error
 	AllVehicles() ([]models.Vehicle, error)
