@@ -50,7 +50,24 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {{if eq .IsAuthenticated 1}}
-              <li class="nav-item"><a class="nav-link" href="/users/logout">Logout</a></li>
+              <li class="nav-item dropdown">
+                <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                >Manage User</a
+                >
+                <ul class="dropdown-menu dropdown-menu-dark">
+                <li><a class="dropdown-item" href="/users">All Users</a></li>
+                <li>
+                    <a class="dropdown-item" href="/users/update">Update User</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/users/logout">Logout</a>
+                </li>
+                </ul>
+            </li>
             {{else}}
               <li class="nav-item"><a class="nav-link" href="/users/login">Login</a></li>
             {{end}}
