@@ -66,8 +66,18 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 
 // UserList lists all users
 func (m *Repository) UserList(w http.ResponseWriter, r *http.Request) {
+	users, err := m.DB.AllUsers()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "login.page.tmpl", &models.TemplateData{Form: forms.New(nil)})
+	data := make(map[string]interface{})
+	data["users"] = users
+
+	render.Template(w, r, "user-list.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 // UserEditIndex redirects to the currently logged-in user's edit page

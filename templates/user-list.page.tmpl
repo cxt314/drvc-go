@@ -1,0 +1,38 @@
+{{template "base" .}}
+
+{{define "title"}}
+Users
+{{end}}
+
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Users</h1>
+                
+
+            </div>
+            <div class="col-3">
+                <form action="/users/create" method="GET">
+                    <button class="btn btn-primary" name="send" value="new">
+                        Create New User
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ $users := index .Data "users" }}
+                {{ range $users }}
+                <a href="/users/update/{{ .ID }}">
+                    <div class="card">
+                        <h4>{{ .FirstName }} {{ .LastName }}</h4>
+                        <p>{{ .Email }} </p>
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+{{end}}
+
