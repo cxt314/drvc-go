@@ -59,6 +59,34 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col">
+                            <h1 class="mt-3 card-title">Mileage Logs: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
+                        
+                        </div>
+                    </div>
+                    <div class="row">
+                        {{ $bills := index .Data "mileage-log-bills" }}
+                        {{ if not $bills }}
+                            <div class="col">
+                                <a href="/billings/{{index .IntMap "year"}}/{{index .IntMap "month"}}/create-logs">Create Mileage Logs for Year/Month</a>
+                            </div>
+                        {{ else }}
+                            {{ range $vehicle, $log := $bills }}
+                                <div class="col-3">
+                                    <h5><a href="/mileage-logs/{{ $log.Log.ID }}/edit-trips"><b>{{ $vehicle }}</b></a></h5>
+                                </div>
+                            {{ end }}
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-2">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
                             <h1 class="mt-3 card-title">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
                         
                         </div>

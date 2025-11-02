@@ -261,3 +261,35 @@ func (m *Repository) calcTotalMemberBillingsCost(billings map[int]models.MemberM
 
 	return totalUSD
 }
+
+func (m *Repository) BillingCreateMileageLogs(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	year, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	month, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// get all active vehicles
+	vehicles, err := m.DB.GetVehicleByActive(true)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// create new mileage log for each active vehicle for given year/month
+	for _, v := range vehicles {
+		err = m.createMileageLogStub(v, year, month)
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/billings/%d/%d", year, month), http.StatusSeeOther)
+}

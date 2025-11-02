@@ -562,3 +562,21 @@ func (m *Repository) MileageLogBilling(w http.ResponseWriter, r *http.Request) {
 
 	render.Template(w, r, "mileage-log-billing.page.tmpl", td)
 }
+
+func (m *Repository) createMileageLogStub(v models.Vehicle, year int, month int) error {
+	var log models.MileageLog
+
+	log.Vehicle = v
+	log.Year = year
+	log.Month = month
+	log.Name = fmt.Sprintf("%s - %04d/%02d", v.Name, year, month)
+	log.StartOdometer = 0
+	log.EndOdometer = 0
+
+	_, err := m.DB.InsertMileageLog(log)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
