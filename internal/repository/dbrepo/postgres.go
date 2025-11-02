@@ -154,6 +154,24 @@ func (m *postgresDBRepo) UpdateUserPassword(v models.User) error {
 	return nil
 }
 
+// DeleteUserByID deletes the given user by id
+func (m *postgresDBRepo) DeleteUserByID(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancel()
+
+	q := `DELETE FROM users WHERE id = $1`
+
+	_, err := m.DB.ExecContext(ctx, q,
+		id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Authenticate authenticates a user
 func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)

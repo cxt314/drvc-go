@@ -282,3 +282,29 @@ func (m *Repository) UserEditPasswordPost(w http.ResponseWriter, r *http.Request
 	m.App.Session.Put(r.Context(), "flash", "Updated password successfully")
 	http.Redirect(w, r, fmt.Sprintf("/users/update/%d", id), http.StatusSeeOther)
 }
+
+func (m *Repository) UserDelete(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	userID := m.App.Session.GetInt(r.Context(), "user_id")
+	if id == userID {
+		// don't allow deleting current user
+		m.App.Session.Put(r.Context(), "error", "Cannot delete current user")
+		http.Redirect(w, r, "/users", http.StatusSeeOther)
+		return
+	}
+
+	err = m.DB.DeleteUserByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "User deleted")
+	http.Redirect(w, r, "/users", http.StatusSeeOther)
+}

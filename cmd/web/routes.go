@@ -44,6 +44,7 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Post("/users/create", handlers.Repo.UserCreatePost)
 		mux.Get("/users/update-pw/{id}", handlers.Repo.UserEditPassword)
 		mux.Post("/users/update-pw/{id}", handlers.Repo.UserEditPasswordPost)
+		mux.Get("/users/delete/{id}", handlers.Repo.UserDelete)
 
 
 		// vehicles routes
