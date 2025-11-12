@@ -22,6 +22,13 @@
 	// This can be used to network with other containers or the host.
 	"forwardPorts": [8080, 5432],
 
+	// environmnet variables
+	"remoteEnv": {
+		"DATABASE_URL": "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+		"IS_PRODUCTION": "false",
+		"USE_CACHE": "false"
+	},
+
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

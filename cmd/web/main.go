@@ -54,8 +54,17 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Trip{})
 	gob.Register(models.Rider{})
 
-	// chages this to true when in production
-	app.InProduction = false
+	// read environment variables
+	inProduction := os.Getenv("IS_PRODUCTION")
+	useCache := os.Getenv("USE_CACHE")
+	dbURL := os.Getenv("DATABASE_URL")
+
+	// set from production env variable
+	if inProduction == "false" {
+		app.InProduction = false
+	} else {
+		app.InProduction = true
+	}
 
 	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	app.InfoLog = infoLog
@@ -74,7 +83,8 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=postgres user=postgres password=postgres")
+	db, err := driver.ConnectSQL(dbURL)
+
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}
@@ -87,7 +97,13 @@ func run() (*driver.DB, error) {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false
+
+	// set app.UseCache from env variables
+	if useCache == "false" {
+		app.UseCache = false
+	} else {
+		app.UseCache = true
+	}
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
