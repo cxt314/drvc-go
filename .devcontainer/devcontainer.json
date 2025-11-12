@@ -8,7 +8,7 @@
 
   	"waitFor": "onCreateCommand",
 	"updateContentCommand": "",
-	"postCreateCommand": "go install -v github.com/gobuffalo/pop/soda@latest",
+	"postCreateCommand": "go install github.com/pressly/goose/v3/cmd/goose@latest",
 
 	//"postCreateCommand": "cp .env.example .env",
 	"postAttachCommand": {
@@ -26,7 +26,10 @@
 	"remoteEnv": {
 		"DATABASE_URL": "postgres://postgres:postgres@127.0.0.1:5432/postgres",
 		"IS_PRODUCTION": "false",
-		"USE_CACHE": "false"
+		"USE_CACHE": "false",
+		"GOOSE_DRIVER": "postgres",
+		"GOOSE_DBSTRING": "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+		"GOOSE_MIGRATION_DIR": "./cmd/web/migrations"
 	},
 
 	// Configure tool-specific properties.

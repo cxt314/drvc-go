@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/gob"
 	"fmt"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
+	"github.com/pressly/goose/v3"
 )
 
 const portNumber = ":8080"
@@ -24,7 +26,10 @@ var session *scs.SessionManager
 var infoLog *log.Logger
 var errorLog *log.Logger
 
-// main is hte main application function
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
+// main is the main application function
 func main() {
 	db, err := run()
 	if err != nil {
@@ -32,6 +37,18 @@ func main() {
 	}
 	defer db.SQL.Close()
 
+	// run migrations in goose
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+        panic(err)
+    }
+
+    if err := goose.Up(db.SQL, "migrations"); err != nil {
+        panic(err)
+    }
+
+	// start application
 	fmt.Printf("Starting application on port %s\n", portNumber)
 
 	srv := &http.Server{
