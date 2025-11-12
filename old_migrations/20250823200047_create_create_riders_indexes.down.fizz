@@ -1,1 +1,0 @@
-drop_index("riders", "riders_trip_id_member_id_idx")

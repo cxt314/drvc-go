@@ -1,1 +1,0 @@
-drop_index("trips", "trips_mileage_log_id_idx")

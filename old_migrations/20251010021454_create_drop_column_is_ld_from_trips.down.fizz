@@ -1,1 +1,0 @@
-add_column("trips", "is_long_distance", "bool", {"default": false})

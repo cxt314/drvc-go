@@ -1,2 +1,0 @@
-add_index("members", "name", {})
-add_index("member_aliases", ["member_id", "name"], {})

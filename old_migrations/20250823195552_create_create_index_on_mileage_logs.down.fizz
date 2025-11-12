@@ -1,2 +1,0 @@
-drop_index("mileage_logs", "mileage_logs_vehicle_id_idx")
-drop_index("mileage_logs", "mileage_logs_vehicle_id_year_month_idx")

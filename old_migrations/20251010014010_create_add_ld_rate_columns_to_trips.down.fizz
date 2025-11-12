@@ -1,2 +1,0 @@
-drop_column("trips", "long_distance_days")
-drop_column("trips", "billing_rate")

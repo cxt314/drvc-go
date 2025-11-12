@@ -1,2 +1,0 @@
-drop_index("members", "members_name_idx")
-drop_index("member_aliases", "member_aliases_member_id_name_idx")

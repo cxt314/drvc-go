@@ -1,1 +1,0 @@
-change_column("vehicles", "purchase_price", "decimal", {"default": 0, "precision": 2})

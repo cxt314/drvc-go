@@ -1,2 +1,0 @@
-add_index("mileage_logs", "vehicle_id", {})
-add_index("mileage_logs", ["vehicle_id", "year", "month"], {})

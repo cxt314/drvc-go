@@ -1,1 +1,0 @@
-change_column("vehicles", "purchase_price", "integer", {default: 0})
