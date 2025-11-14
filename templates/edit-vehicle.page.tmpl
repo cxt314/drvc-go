@@ -228,13 +228,15 @@
     const elem = document.querySelector('input[name="purchase_date"]');
     const datePicker = new Datepicker(elem, {
         format: "yyyy-mm-dd",
+        defaultViewDate: null,
+        defaultDate: null,
     });
 
     const elemSale = document.querySelector('input[name="sale_date"]');
     const datePickerSale = new Datepicker(elemSale, {
         format: "yyyy-mm-dd",
         defaultViewDate: null,
-        defaultdate: null,
+        defaultDate: null,
     });
 </script>
 

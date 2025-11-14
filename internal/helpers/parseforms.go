@@ -29,17 +29,23 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.BillingType = r.Form.Get("billing_type")
 
 	// parse year str to int
-	v.Year, err = strconv.Atoi(r.Form.Get("year"))
-	if err != nil {
-		return err
+	if r.Form.Get("year") != "" {
+		v.Year, err = strconv.Atoi(r.Form.Get("year"))
+		if err != nil {
+			return err
+		}
 	}
 
 	// parse purchase date string to *time.Time
-	tempPD, err := time.Parse(config.DateLayout, r.Form.Get("purchase_date"))
-	if err != nil {
-		return err
+	if r.Form.Get("purchase_date") == "" {
+		v.PurchaseDate = nil
+	} else {
+		tempPD, err := time.Parse(config.DateLayout, r.Form.Get("purchase_date"))
+		if err != nil {
+			return err
+		}
+		v.PurchaseDate = &tempPD
 	}
-	v.PurchaseDate = &tempPD
 	// parse PurchasePrice to USD
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
 

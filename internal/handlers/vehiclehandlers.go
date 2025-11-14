@@ -51,6 +51,7 @@ func (m *Repository) VehicleCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 	// do form validation checks
+	form.Required("name", "make", "model", "year", "fuel_type", "purchase_date")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -126,6 +127,7 @@ func (m *Repository) VehicleEditPost(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 	// do form validation checks
+	form.Required("name", "make", "model", "year", "fuel_type", "purchase_date")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
