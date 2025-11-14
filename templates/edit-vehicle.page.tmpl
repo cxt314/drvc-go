@@ -86,13 +86,13 @@
                         </div>
                         <div class="col-4">
                             <div class="form-group">
-                                <label for="purchase_date">Purchase Date: *</label>
+                                <label for="purchase_date">Purchase Date: (YYYY-MM-DD)*</label>
                                 {{with .Form.Errors.Get "purchase_date"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
                                 <input class="form-control {{with .Form.Errors.Get "purchase_date"}} is-invalid {{end}}" 
                                         id="purchase_date" type='text'
-                                        name='purchase_date' value="{{$v.PurchaseDate}}" >
+                                        name='purchase_date' value="{{$v.PurchaseDate}}" placeholder="yyyy-mm-dd">
                             </div>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label for="sale_price">Sale Price:</label>
+                                <label for="sale_price">Sale Price: (YYYY-MM-DD)</label>
                                 {{with .Form.Errors.Get "sale_price"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
@@ -137,7 +137,7 @@
                                 {{end}}
                                 <input class="form-control {{with .Form.Errors.Get "sale_date"}} is-invalid {{end}}" 
                                         id="sale_date" type='text'
-                                        name='sale_date' value="{{if $v.SaleDate }}{{$v.SaleDate}}{{end}}" >
+                                        name='sale_date' value="{{if $v.SaleDate }}{{$v.SaleDate}}{{end}}" placeholder="yyyy-mm-dd">
                             </div>
                         </div>
                     </div>
