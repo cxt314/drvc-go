@@ -354,23 +354,22 @@ func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 		defer cancel()
 
 		// delete riders first
-		// 		select *
-		// FROM mileage_logs m
-		// JOIN trips t on t.mileage_log_id = m.id
-		// JOIN riders r on r.trip_id = t.id
-		// WHERE m.id = 1
-
-		// select *
-		// from riders r
-		// join trips t on r.trip_id = t.id
-		// where t.mileage_log_id = 1
-
-		q := `DELETE from trips WHERE mileage_log_id = $1`
+		q := `DELETE FROM riders r
+				join trips t on r.trip_id = t.id
+				where t.mileage_log_id = $1`
 		_, err := tx.ExecContext(ctx, q, id)
 		if err != nil {
 			return err
 		}
 
+		// delete trips
+		q = `DELETE from trips WHERE mileage_log_id = $1`
+		_, err = tx.ExecContext(ctx, q, id)
+		if err != nil {
+			return err
+		}
+
+		// delete mileage log
 		q = `DELETE from mileage_logs WHERE id=$1`
 
 		_, err = tx.ExecContext(ctx, q, id)
