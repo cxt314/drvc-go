@@ -115,13 +115,13 @@ func (m *Repository) MileageLogCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	insertedID, err := m.DB.InsertMileageLog(v)
+	_, err = m.DB.InsertMileageLog(v)
 	if err != nil {
 		helpers.ServerError(w, err)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/list/%d", insertedID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/mileage-logs/list/%d", v.Vehicle.ID), http.StatusSeeOther)
 
 }
 
