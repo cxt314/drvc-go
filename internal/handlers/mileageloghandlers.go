@@ -212,8 +212,20 @@ func (m *Repository) MileageLogEditPost(w http.ResponseWriter, r *http.Request) 
 }
 
 func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
 
-	render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	err = m.DB.DeleteMileageLog(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/mileage-logs", http.StatusSeeOther)
 }
 
 func createRiderOptionsTomSelect(members []models.Member) template.JS {

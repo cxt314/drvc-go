@@ -355,8 +355,8 @@ func (m *postgresDBRepo) DeleteMileageLog(id int) error {
 
 		// delete riders first
 		q := `DELETE FROM riders r
-				join trips t on r.trip_id = t.id
-				where t.mileage_log_id = $1`
+				USING trips t 
+				where r.trip_id = t.id AND t.mileage_log_id = $1`
 		_, err := tx.ExecContext(ctx, q, id)
 		if err != nil {
 			return err
