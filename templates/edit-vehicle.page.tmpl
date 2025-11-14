@@ -13,7 +13,7 @@
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
                     <div class="form-group mt-3">
-                        <label for="name">Name:</label>
+                        <label for="name">Name: *</label>
                         {{with .Form.Errors.Get "name"}}
                             <label class="text-danger">{{.}}</label>
                         {{end}}
@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label for="make">Make:</label>
+                                <label for="make">Make: *</label>
                                 {{with .Form.Errors.Get "make"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
@@ -36,7 +36,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="model">Model:</label>
+                                <label for="model">Model: *</label>
                                 {{with .Form.Errors.Get "model"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
@@ -47,7 +47,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="year">Model Year:</label>
+                                <label for="year">Model Year: *</label>
                                 {{with .Form.Errors.Get "year"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
@@ -58,7 +58,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                            <label for="fuel_type">Fuel Type:</label>
+                            <label for="fuel_type">Fuel Type: *</label>
                             {{with .Form.Errors.Get "fuel_type"}}
                                 <label class="text-danger">{{.}}</label>
                             {{end}}
@@ -86,7 +86,7 @@
                         </div>
                         <div class="col-4">
                             <div class="form-group">
-                                <label for="purchase_date">Purchase Date:</label>
+                                <label for="purchase_date">Purchase Date: *</label>
                                 {{with .Form.Errors.Get "purchase_date"}}
                                     <label class="text-danger">{{.}}</label>
                                 {{end}}
@@ -137,7 +137,7 @@
                                 {{end}}
                                 <input class="form-control {{with .Form.Errors.Get "sale_date"}} is-invalid {{end}}" 
                                         id="sale_date" type='text'
-                                        name='sale_date' value="{{if $v.SaleDate }}{{$v.SaleDate}}{{end}} " >
+                                        name='sale_date' value="{{if $v.SaleDate }}{{$v.SaleDate}}{{end}}" >
                             </div>
                         </div>
                     </div>
@@ -233,6 +233,8 @@
     const elemSale = document.querySelector('input[name="sale_date"]');
     const datePickerSale = new Datepicker(elemSale, {
         format: "yyyy-mm-dd",
+        defaultViewDate: null,
+        defaultdate: null,
     });
 </script>
 

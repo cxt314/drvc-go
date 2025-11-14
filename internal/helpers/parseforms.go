@@ -44,7 +44,9 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
 
 	// parse sale date string to *time.Time, only if populated
-	if r.Form.Get("sale_date") != "" {
+	if r.Form.Get("sale_date") == "" {
+		v.SaleDate = nil
+	} else {
 		tempSD, err := time.Parse(config.DateLayout, r.Form.Get("sale_date"))
 		if err != nil {
 			return err
