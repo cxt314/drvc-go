@@ -43,12 +43,14 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	// parse PurchasePrice to USD
 	v.PurchasePrice = models.StrToUSD(r.Form.Get("purchase_price"))
 
-	// parse sale date string to *time.Time
-	tempSD, err := time.Parse(config.DateLayout, r.Form.Get("sale_date"))
-	if err != nil {
-		return err
+	// parse sale date string to *time.Time, only if populated
+	if r.Form.Get("sale_date") != "" {
+		tempSD, err := time.Parse(config.DateLayout, r.Form.Get("sale_date"))
+		if err != nil {
+			return err
+		}
+		v.SaleDate = &tempSD
 	}
-	v.SaleDate = &tempSD
 	// parse SalePrice to uSD
 	v.SalePrice = models.StrToUSD(r.Form.Get("sale_price"))
 
@@ -68,7 +70,7 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 
 	// new members are active by default
 	v.Active = true
-	
+
 	// parse string fields
 	v.Name = r.Form.Get("name")
 	v.Email = r.Form.Get("email")
@@ -90,13 +92,12 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 	return nil
 }
 
-
 func ParseFormToUser(r *http.Request, v *models.User) error {
 	err := r.ParseForm()
 	if err != nil {
 		return err
 	}
-	
+
 	// parse string fields
 	v.FirstName = r.Form.Get("first-name")
 	v.LastName = r.Form.Get("last-name")
@@ -105,7 +106,7 @@ func ParseFormToUser(r *http.Request, v *models.User) error {
 
 	// all users get same access level
 	v.AccessLevel = 1
-	
+
 	//log.Println(v)
 
 	return nil
