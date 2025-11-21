@@ -8,6 +8,8 @@
 *.so
 *.dylib
 drvc-build
+old_migrations/
+backup.sql
 
 # Test binary, built with `go test -c`
 *.test
