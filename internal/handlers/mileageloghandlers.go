@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
 	"html/template"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -226,6 +228,86 @@ func (m *Repository) MileageLogDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/mileage-logs", http.StatusSeeOther)
+}
+
+func (m *Repository) MileageLogCSV(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	log, err := m.DB.GetMileageLogByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// convert mileage log into [][]string for writing to csv
+	logCSV, err := convertMileageLogToCSVRaw(log)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// Set headers so browser will download the file
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s-%04d%02d.csv", log.Vehicle.Name, log.Year, log.Month))
+	w.Header().Set("Transfer-Encoding", "chunked")
+
+	// Create a CSV writer using our HTTP response writer as our io.Writer
+	wr := csv.NewWriter(w)
+	// Write all items and deal with errors
+	if err := wr.WriteAll(logCSV); err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// Flush the writer and check for any errors
+	wr.Flush()
+	if err := wr.Error(); err != nil {
+		fmt.Println("Error flushing CSV writer:", err)
+		helpers.ServerError(w, err)
+		return
+	}
+
+}
+
+func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string, error) {
+	csvSlice := [][]string{{}}
+
+	title := []string{log.Vehicle.Name, fmt.Sprintf("%04d-%02d", log.Year, log.Month)}
+	csvSlice = append(csvSlice, title)
+
+	infoRow := []string{"Starting Mileage:", strconv.Itoa(log.StartOdometer),
+		"Ending Mileage:", strconv.Itoa(log.EndOdometer),
+		"Total Miles:", strconv.Itoa(log.Distance)}
+	csvSlice = append(csvSlice, infoRow)
+
+	headerRow := []string{"Date", "End mileage 3-digits", "Miles", "Riders"}
+	csvSlice = append(csvSlice, headerRow)
+
+	// reverse Trips to get trips from earliest to latest
+	slices.Reverse(log.Trips)
+	// add each trip as []string
+	for _, t := range log.Trips {
+		endMileage3Digit := t.EndMileage % 1000
+
+		tripRow := []string{t.TripDate.Format("2006-01-02"),
+			strconv.Itoa(endMileage3Digit),
+			strconv.Itoa(int(t.Distance())),
+		}
+
+		// append riders to tripRow
+		for _, r := range t.Riders {
+			tripRow = append(tripRow, r.Name)
+		}
+
+		csvSlice = append(csvSlice, tripRow)
+	}
+
+	return csvSlice, nil
 }
 
 func createRiderOptionsTomSelect(members []models.Member) template.JS {

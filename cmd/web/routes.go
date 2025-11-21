@@ -46,7 +46,6 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Post("/users/update-pw/{id}", handlers.Repo.UserEditPasswordPost)
 		mux.Get("/users/delete/{id}", handlers.Repo.UserDelete)
 
-
 		// vehicles routes
 		mux.Get("/vehicles", handlers.Repo.VehicleList)
 		mux.Get("/new-vehicle", handlers.Repo.VehicleCreate)
@@ -79,12 +78,15 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Get("/trip-edit/{id}", handlers.Repo.EditTrip)                 // htmx handler
 		mux.Post("/trip-edit/{id}", handlers.Repo.EditTripPost)            // htmx edit trip handler
 		mux.Get("/mileage-logs/{id}/billing", handlers.Repo.MileageLogBilling)
+		mux.Get("/mileage-logs/{id}/download-csv", handlers.Repo.MileageLogCSV)
+
 
 		// billing routes
 		mux.Get("/billings", handlers.Repo.BillingIndex)
 		mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
 		mux.Post("/billings", handlers.Repo.BillingSummaryPost)
 		mux.Get("/billings/{yyyy}/{mm}/create-logs", handlers.Repo.BillingCreateMileageLogs)
+
 
 		// htmx routes
 		mux.Get("/remove-item", handlers.Repo.RemoveItem)
