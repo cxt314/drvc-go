@@ -245,11 +245,7 @@ func (m *Repository) MileageLogCSV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// convert mileage log into [][]string for writing to csv
-	logCSV, err := convertMileageLogToCSVRaw(log)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
+	logCSV := convertMileageLogToCSVRaw(log)
 
 	// Set headers so browser will download the file
 	w.Header().Set("Content-Type", "text/csv")
@@ -274,7 +270,7 @@ func (m *Repository) MileageLogCSV(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string, error) {
+func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string) {
 	csvSlice := [][]string{{}}
 
 	title := []string{log.Vehicle.Name, fmt.Sprintf("%04d-%02d", log.Year, log.Month)}
@@ -307,7 +303,7 @@ func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string, error) {
 		csvSlice = append(csvSlice, tripRow)
 	}
 
-	return csvSlice, nil
+	return csvSlice
 }
 
 func createRiderOptionsTomSelect(members []models.Member) template.JS {

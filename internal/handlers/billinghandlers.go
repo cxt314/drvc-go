@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -292,4 +293,50 @@ func (m *Repository) BillingCreateMileageLogs(w http.ResponseWriter, r *http.Req
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/billings/%d/%d", year, month), http.StatusSeeOther)
+}
+
+func (m *Repository) BillingCSV(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	year, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	month, err := strconv.Atoi(exploded[3])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	logs, err := m.DB.GetMileageLogsByYearMonth(year, month)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// Set headers so browser will download the file
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=mileage-logs-%04d%02d.csv", year, month))
+	w.Header().Set("Transfer-Encoding", "chunked")
+
+	// Create a CSV writer using our HTTP response writer as our io.Writer
+	wr := csv.NewWriter(w)
+
+	for _, l := range logs {
+		logCSV := convertMileageLogToCSVRaw(l)
+
+		if err := wr.WriteAll(logCSV); err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
+	}
+
+	// Flush the writer and check for any errors
+	wr.Flush()
+	if err := wr.Error(); err != nil {
+		fmt.Println("Error flushing CSV writer:", err)
+		helpers.ServerError(w, err)
+		return
+	}
+
 }

@@ -86,7 +86,7 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Get("/billings/{yyyy}/{mm}", handlers.Repo.BillingSummaryYearMonth)
 		mux.Post("/billings", handlers.Repo.BillingSummaryPost)
 		mux.Get("/billings/{yyyy}/{mm}/create-logs", handlers.Repo.BillingCreateMileageLogs)
-
+		mux.Get("/billings/{yyyy}/{mm}/download-csv", handlers.Repo.BillingCSV)
 
 		// htmx routes
 		mux.Get("/remove-item", handlers.Repo.RemoveItem)
