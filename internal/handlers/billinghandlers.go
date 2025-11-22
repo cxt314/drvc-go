@@ -221,21 +221,31 @@ func (m *Repository) calcPerMemberBillings(log models.MileageLog, members []mode
 
 	tripMap := make(map[int]models.USD)
 	ldMap := make(map[int]models.USD)
+	tripMapFloat := make(map[int]float64)
+	ldMapFloat := make(map[int]float64)
 
 	for _, v := range log.Trips {
 		numRiders := len(v.Riders)
-		tripShare := v.Cost().Divide(float64(numRiders))
+		// when summing up trip costs, keep things as a float to avoid rounding issues
+		tripShare := v.Cost().Float64() / float64(numRiders)
 
 		for _, r := range v.Riders {
 			if v.LongDistanceDays > 0 {
 				// long distance trip, add to ldMap
-				ldMap[r.ID] = ldMap[r.ID].AddUSD(tripShare)
-
+				ldMapFloat[r.ID] = ldMapFloat[r.ID] + tripShare
 			} else {
 				// regular trip, add to tripMap
-				tripMap[r.ID] = tripMap[r.ID].AddUSD(tripShare)
+				tripMapFloat[r.ID] = tripMapFloat[r.ID] + tripShare
 			}
 		}
+	}
+
+	// convert trip cost floats to USD
+	for k, v := range tripMapFloat {
+		tripMap[k] = models.ToUSD(v)
+	}
+	for k, v := range ldMapFloat {
+		ldMap[k] = models.ToUSD(v)
 	}
 
 	for _, v := range members {
