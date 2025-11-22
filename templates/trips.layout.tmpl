@@ -256,7 +256,7 @@
 {{end}}
 
 {{define "tripRow"}}
-<tr id="trip-{{.ID}}" {{if ne .LongDistanceDays 0 }} class="table-info" {{else}}{{if gt .Distance 300.0 }}class="table-warning"{{end}}{{end}}>
+<tr id="trip-{{.ID}}" {{if ne .LongDistanceDays 0 }} class="table-info" {{else}}{{if gt .Distance 300.0 }}class="table-danger" {{end}}{{end}}>
     <td>{{ .TripDate.Format "2006-01-02" }}</td>
     <td> {{ .StartMileage }}</td>
     <td> {{ .EndMileage }}</td>
