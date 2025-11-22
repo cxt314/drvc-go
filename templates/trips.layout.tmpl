@@ -18,13 +18,14 @@
         </div>
         <div class="col">
             <div class="form-group mt-3">
-                <label for="start-mileage">Start (readonly):</label>
-                {{with .Form.Errors.Get "start-mileage"}}
-                    <label class="text-danger">{{.}}</label>
-                {{end}}
-                <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
-                    id="start-mileage" autocomplete="off" type='number'
-                    name='start-mileage' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" readonly>
+                <label for="start-mileage-display">Start (readonly):</label>
+                        {{with .Form.Errors.Get "start-mileage"}}
+                            <label class="text-danger">{{.}}</label>
+                        {{end}}
+                        <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
+                            id="start-mileage-display" autocomplete="off" type='number'
+                            name='start-mileage-display' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" disabled>
+                        <input type="hidden" name="start-mileage" id="start-mileage" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}">
             </div>
         </div>
         <div class="col">
@@ -138,13 +139,14 @@
                 </div>
                 <div class="col">
                     <div class="form-group mt-3">
-                        <label for="start-mileage">Start (readonly):</label>
+                        <label for="start-mileage-display">Start (readonly):</label>
                         {{with .Form.Errors.Get "start-mileage"}}
                             <label class="text-danger">{{.}}</label>
                         {{end}}
                         <input class="form-control" {{with .Form.Errors.Get "start-mileage"}} is-invalid {{end}}
-                            id="start-mileage" autocomplete="off" type='number'
-                            name='start-mileage' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" readonly>
+                            id="start-mileage-display" autocomplete="off" type='number'
+                            name='start-mileage-display' min="0" max="999" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}" disabled>
+                        <input type="hidden" name="start-mileage" id="start-mileage" value="{{ if $t }}{{ $t.StartMileage }}{{else}}{{ index .IntMap "last-odometer-value" }}{{end}}">
                     </div>
                 </div>
                 <div class="col">
