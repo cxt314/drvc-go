@@ -270,7 +270,7 @@ func (m *Repository) MileageLogCSV(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string) {
+func convertMileageLogToCSVRaw(log models.MileageLog) [][]string {
 	csvSlice := [][]string{{}}
 
 	title := []string{log.Vehicle.Name, fmt.Sprintf("%04d-%02d", log.Year, log.Month)}
@@ -281,7 +281,7 @@ func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string) {
 		"Total Miles:", strconv.Itoa(log.Distance)}
 	csvSlice = append(csvSlice, infoRow)
 
-	headerRow := []string{"Date", "End mileage 3-digits", "Miles", "Riders"}
+	headerRow := []string{"Date", "End mileage 3-digits", "Miles", "Destination", "Purpose", "Riders"}
 	csvSlice = append(csvSlice, headerRow)
 
 	// reverse Trips to get trips from earliest to latest
@@ -293,6 +293,8 @@ func convertMileageLogToCSVRaw(log models.MileageLog) ([][]string) {
 		tripRow := []string{t.TripDate.Format("2006-01-02"),
 			strconv.Itoa(endMileage3Digit),
 			strconv.Itoa(int(t.Distance())),
+			t.Destination,
+			t.Purpose,
 		}
 
 		// append riders to tripRow
