@@ -1,6 +1,5 @@
 {{define "tripForm" }}
 {{ $v := index .Data "mileage-log" }}
-<!--<form method="post" action="/mileage-logs/{{$v.ID}}/edit-trips" class="" novalidate>-->
 <form hx-post="/mileage-logs/{{$v.ID}}/add-trip" hx-trigger="submit" hx-swap="outerHTML" onsubmit="generateFullOdometerValue()" novalidate>
     {{ $t := index .Data "trip" }}
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
