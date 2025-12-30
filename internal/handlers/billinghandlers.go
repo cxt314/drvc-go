@@ -90,7 +90,7 @@ func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.Mil
 	var keyOrder []string
 
 	//fmt.Println(vehicleBills)
-	// create & append header row
+	// create column headers
 	keyOrder = append(keyOrder, "Member")
 	for _, v := range vehicles {
 		keyOrder = append(keyOrder, v.Name)
@@ -98,6 +98,7 @@ func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.Mil
 	}
 	keyOrder = append(keyOrder, "Total")
 
+	// create & append row for each member
 	for _, i := range members {
 		row := make(map[string]string)
 		row["Member"] = i.Name
@@ -112,7 +113,11 @@ func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.Mil
 		}
 
 		row["Total"] = memberTotal.String()
-		displayArray = append(displayArray, row)
+		
+		// only append to display if member's bill is > 0
+		if memberTotal != 0 {
+			displayArray = append(displayArray, row)
+		}
 	}
 
 	//fmt.Println(displayArray)
@@ -142,7 +147,7 @@ func (m *Repository) getSummaryBillingTemplateData(year int, month int) (*models
 		if err != nil {
 			return &td, err
 		}
-		
+
 		mileageLogBills[v.Vehicle.Name] = mileageLogBill
 	}
 
