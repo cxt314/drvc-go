@@ -136,13 +136,13 @@ func (m *Repository) getSummaryBillingTemplateData(year int, month int) (*models
 
 	mileageLogBills := make(map[string]models.MileageLogBilling)
 
-	//fmt.Println(logs)
+	// calculate member bills for each log
 	for _, v := range logs {
 		mileageLogBill, err := m.getMileageLogBilling(v, members)
 		if err != nil {
 			return &td, err
 		}
-		//fmt.Println(mileageLogBill.MemberBills)
+		
 		mileageLogBills[v.Vehicle.Name] = mileageLogBill
 	}
 
