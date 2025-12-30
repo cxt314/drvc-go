@@ -337,3 +337,9 @@
 {{ $v := index .Data "mileage-log" }}
 <span id="trip-distance" hx-swap-oob="true">{{ $v.TripDistance }}</span>
 {{end}}
+
+{{define "newTripFormSwap"}}
+<div id="new-trip-form" hx-swap-oob="true" class="col">
+    {{template "tripForm" .}}
+</div>
+{{end}}

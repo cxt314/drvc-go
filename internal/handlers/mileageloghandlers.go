@@ -592,6 +592,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 	// create HTMX response
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwap", td)
 	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripDistanceSwap", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "newTripFormSwap", td)
 
 	buf.WriteTo(w)
 
