@@ -143,7 +143,7 @@
         // Reconstruct the full odometer value.
         let endMileageFull = Math.floor(startMileageFull / 1000) * 1000 + endMileageThreeDigits;
         // if last three digits of end mileage is less than last three digits of start mileage, add 1000 to full mileage
-        if (endThreeDigits < (startMileageFull % 1000)) {
+        if (endMileageThreeDigits < (startMileageFull % 1000)) {
             endMileageFull = endMileageFull + 1000;
         }
 
