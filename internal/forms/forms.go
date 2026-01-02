@@ -74,7 +74,23 @@ func (f *Form) IsEqual(field string, match string) {
 	}
 }
 
-func (f *Form) IsValidEndMileage(field string, originalStartMileage int, originalEndMileage int, nextTripEndMileage int) {
+func (f *Form) IsValidEndMileage(endField string, startField string) {
+	startMileage, err := strconv.Atoi(f.Get(startField))
+	if err != nil {
+		f.Errors.Add(startField, "This field must be a number")
+	}
+
+	endMileage, err := strconv.Atoi(f.Get(endField))
+	if err != nil {
+		f.Errors.Add(endField, "This field must be a number")
+	}
+
+	if endMileage < startMileage {
+		f.Errors.Add("end-mileage-input", "End mileage cannot be less than start mileage")
+	}
+}
+
+func (f *Form) IsValidNewEndMileage(field string, originalStartMileage int, originalEndMileage int, nextTripEndMileage int) {
 	newEndMileage, err := strconv.Atoi(f.Get(field))
 	if err != nil {
 		f.Errors.Add(field, "This field must be a number")

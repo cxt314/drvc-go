@@ -402,6 +402,7 @@ func (m *Repository) AddTripPost(w http.ResponseWriter, r *http.Request) {
 
 	// do form validation checks
 	form.Required("trip-day", "start-mileage", "end-mileage", "end-mileage-input", "riders")
+	form.IsValidEndMileage("end-mileage", "start-mileage")
 
 	// if there were errors, only generate the partial form w/ errors
 	if !form.Valid() {
@@ -533,7 +534,7 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 	form.Required("trip-day", "start-mileage", "end-mileage", "riders")
 	// check for valid end mileage if there are any later trips
 	if len(laterTrips) > 0 {
-		form.IsValidEndMileage("end-mileage", t.StartMileage, originalEndMileage, laterTrips[0].EndMileage)
+		form.IsValidNewEndMileage("end-mileage", t.StartMileage, originalEndMileage, laterTrips[0].EndMileage)
 	}
 
 	// if there were errors, re-generate the partial form w/ errors
