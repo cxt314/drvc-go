@@ -59,7 +59,7 @@ func (b *TruckBilling) TripCost(multiplier float64, UseSecondaryRate bool) USD {
 		cost = rate.Multiply(1.0)
 	}
 
-	if cost.Float64() < b.MinimumFee.Float64() {
+	if cost.Float64() < b.MinimumFee.Float64() && !UseSecondaryRate {
 		return b.MinimumFee
 	} else {
 		return cost
