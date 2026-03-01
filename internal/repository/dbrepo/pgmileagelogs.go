@@ -513,3 +513,29 @@ func (m *postgresDBRepo) GetLaterTrips(v models.Trip) ([]models.Trip, error) {
 	return m.scanRowsToTrips(rows, v.MileageLog.ID)
 
 }
+
+// DeleteTripByID deletes a Trip & its Riders by trip id
+func (m *postgresDBRepo) DeleteTripByID(v models.Trip) error {
+	return runInTx(m.DB, func(tx *sql.Tx) error {
+		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+		defer cancel()
+
+		// delete riders by trip id
+		stmt := `DELETE FROM riders WHERE trip_id = $1`
+		_, err := tx.ExecContext(ctx, stmt, v.ID)
+		if err != nil {
+			return err
+		}
+
+		// delete trip from trips table
+		stmt = `DELETE FROM trips WHERE id = $1`
+
+		_, err = tx.ExecContext(ctx, stmt,
+			v.ID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+}

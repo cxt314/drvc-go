@@ -599,6 +599,53 @@ func (m *Repository) EditTripPost(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// DeleteTrip is the htmx route that deletes a trip
+func (m *Repository) DeleteTrip(w http.ResponseWriter, r *http.Request) {
+
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[2])
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	w.Header().Set("Content-Type", "text/html")
+
+	// get trip by id
+	t, err := m.DB.GetTripByID(id)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	mileageLogID := t.MileageLog.ID
+	
+	// delete trip
+	err = m.DB.DeleteTripByID(t)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	// get template data 
+	td, err := m.getTripEditTemplateData(mileageLogID)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	td.Form = forms.New(nil)
+
+	// create HTMX response
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripEditTableSwap", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "tripDistanceSwap", td)
+	render.PartialHTMX(buf, r, "edit-mileage-log-trips.page.tmpl", "newTripFormSwap", td)
+
+	buf.WriteTo(w)
+
+}
+
 // updateFutureTripMileages updates subsequent start & end mileages when a trip is updated
 // TODO: what if we need to reduce end mileage?
 func (m *Repository) updateFutureTripMileages(updated models.Trip, laterTrips []models.Trip, originalEndMileage int) error {

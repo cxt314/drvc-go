@@ -38,4 +38,5 @@ type DatabaseRepo interface {
 	UpdateTripByID(v models.Trip) error 
 	GetLaterTrips(v models.Trip) ([]models.Trip, error)
 	GetMileageLogsByYearMonth(year int, month int) ([]models.MileageLog, error)
+	DeleteTripByID(v models.Trip) error
 }

@@ -233,6 +233,10 @@
                 <div class="col">
                     <input type="submit" class="btn btn-primary" value="Update Trip">
                 </div>
+                <div class="col-8"></div>
+                <div class="col">
+                    <small class="text-danger align-bottom"><div hx-get="/trip-delete/{{$t.ID}}" hx-trigger="click" hx-target="#trip-list" hx-swap="outerHTML">Delete Trip</div></small>
+                </div>
             </div>
         </form>
     </td>
