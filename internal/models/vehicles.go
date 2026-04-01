@@ -23,6 +23,7 @@ var LongDistanceDays = [...]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 type Vehicle struct {
 	ID               int
 	Name             string
+	QBOClass         string
 	Year             int
 	Make             string
 	Model            string

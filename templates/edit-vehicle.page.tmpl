@@ -11,16 +11,31 @@
 
                 <form method="post" action="{{if $v}}/vehicles/{{$v.ID}} {{else}}/new-vehicle {{end}}" class="" novalidate>
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-
-                    <div class="form-group mt-3">
-                        <label for="name">Name: *</label>
-                        {{with .Form.Errors.Get "name"}}
-                            <label class="text-danger">{{.}}</label>
-                        {{end}}
-                        <input class="form-control {{with .Form.Errors.Get "name"}} is-invalid {{end}}"
-                               id="name" autocomplete="off" type='text'
-                               name='name' value="{{$v.Name}}" required>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mt-3">
+                                <label for="name">Name: *</label>
+                                {{with .Form.Errors.Get "name"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "name"}} is-invalid {{end}}"
+                                    id="name" autocomplete="off" type='text'
+                                    name='name' value="{{$v.Name}}" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mt-3">
+                                <label for="qbo_class">Quickbooks Class: *</label>
+                                {{with .Form.Errors.Get "qbo_class"}}
+                                    <label class="text-danger">{{.}}</label>
+                                {{end}}
+                                <input class="form-control {{with .Form.Errors.Get "qbo_class"}} is-invalid {{end}}"
+                                    id="qbo_class" autocomplete="off" type='text'
+                                    name='qbo_class' value="{{$v.QBOClass}}" required>
+                            </div>
+                        </div>
                     </div>
+                    
                     
                     <div class="row">
                         <div class="col">

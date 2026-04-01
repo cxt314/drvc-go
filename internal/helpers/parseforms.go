@@ -27,6 +27,7 @@ func ParseFormToVehicle(r *http.Request, v *models.Vehicle) error {
 	v.Vin = r.Form.Get("vin")
 	v.LicensePlate = r.Form.Get("license_plate")
 	v.BillingType = r.Form.Get("billing_type")
+	v.QBOClass = r.Form.Get("qbo_class")
 
 	// parse year str to int
 	if r.Form.Get("year") != "" {

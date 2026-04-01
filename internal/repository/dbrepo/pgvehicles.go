@@ -14,7 +14,8 @@ const vehicleCols = `name, year, make, model, fuel_type,
 				purchase_price, purchase_date, vin, license_plate,
 				is_active, sale_price, sale_date,
 				billing_type, base_per_mile, secondary_per_mile, minimum_fee,
-				created_at, updated_at`
+				created_at, updated_at,
+				qbo_class`
 
 // InsertVehicle inserts a Vehicle into the database
 func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
@@ -22,7 +23,7 @@ func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
 	defer cancel()
 
 	stmt := fmt.Sprintf(`INSERT INTO vehicles (%s)
-				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
 		vehicleCols)
 
 	_, err := m.DB.ExecContext(ctx, stmt,
@@ -31,6 +32,7 @@ func (m *postgresDBRepo) InsertVehicle(v models.Vehicle) error {
 		v.Active, v.SalePrice, v.SaleDate,
 		v.BillingType, v.BasePerMile, v.SecondaryPerMile, v.MinimumFee,
 		time.Now(), time.Now(),
+		v.QBOClass,
 	)
 
 	if err != nil {
@@ -50,7 +52,7 @@ func scanRowsToVehicles(rows *sql.Rows) ([]models.Vehicle, error) {
 			&m.PurchasePrice, &m.PurchaseDate, &m.Vin, &m.LicensePlate,
 			&m.Active, &m.SalePrice, &m.SaleDate,
 			&m.BillingType, &m.BasePerMile, &m.SecondaryPerMile, &m.MinimumFee,
-			&m.CreatedAt, &m.UpdatedAt)
+			&m.CreatedAt, &m.UpdatedAt, &m.QBOClass)
 		if err != nil {
 			return vehicles, err
 		}
@@ -119,7 +121,7 @@ func (m *postgresDBRepo) GetVehicleByID(id int) (models.Vehicle, error) {
 		&v.PurchasePrice, &v.PurchaseDate, &v.Vin, &v.LicensePlate,
 		&v.Active, &v.SalePrice, &v.SaleDate,
 		&v.BillingType, &v.BasePerMile, &v.SecondaryPerMile, &v.MinimumFee,
-		&v.CreatedAt, &v.UpdatedAt)
+		&v.CreatedAt, &v.UpdatedAt, &v.QBOClass)
 	if err != nil {
 		return v, err
 	}
@@ -149,8 +151,9 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 			base_per_mile = $14,
 			secondary_per_mile = $15,
 			minimum_fee = $16,
-			updated_at = $17
-		WHERE id =  $18
+			updated_at = $17,
+			qbo_class = $18
+		WHERE id =  $19
 		`
 
 	_, err := m.DB.ExecContext(ctx, q,
@@ -171,6 +174,7 @@ func (m *postgresDBRepo) UpdateVehicle(v models.Vehicle) error {
 		v.SecondaryPerMile,
 		v.MinimumFee,
 		time.Now(),
+		v.QBOClass,
 		v.ID,
 	)
 
