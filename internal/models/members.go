@@ -7,6 +7,7 @@ import "time"
 type Member struct {
 	ID        int
 	Name      string
+	QBOName   string
 	Email     string
 	Aliases   []MemberAlias
 	Active    bool

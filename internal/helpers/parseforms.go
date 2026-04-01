@@ -82,6 +82,7 @@ func ParseFormToMember(r *http.Request, v *models.Member) error {
 	// parse string fields
 	v.Name = r.Form.Get("name")
 	v.Email = r.Form.Get("email")
+	v.QBOName = r.Form.Get("qbo_name")
 
 	// parse member aliases
 	// clear out old aliases

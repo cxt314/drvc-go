@@ -46,6 +46,7 @@ func (m *Repository) MemberCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	form := forms.New(r.PostForm)
 	// do form validation checks
+	form.Required("name", "email")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
