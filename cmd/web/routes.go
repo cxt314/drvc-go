@@ -88,6 +88,7 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Post("/billings", handlers.Repo.BillingSummaryPost)
 		mux.Get("/billings/{yyyy}/{mm}/create-logs", handlers.Repo.BillingCreateMileageLogs)
 		mux.Get("/billings/{yyyy}/{mm}/download-csv", handlers.Repo.BillingCSV)
+		mux.Get("/billings/{yyyy}/{mm}/download-qbo-invoices", handlers.Repo.QBOBulkInvoicesCSV)
 
 		// htmx routes
 		mux.Get("/remove-item", handlers.Repo.RemoveItem)

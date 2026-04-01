@@ -96,6 +96,12 @@
                             <h1 class="mt-3 card-title">Billing Summary: {{index .IntMap "year"}}-{{index .IntMap "month"}}</h1>
                         
                         </div>
+                        <div class="col-4"></div>
+                        <div class="col">
+                            <a href="/billings/{{index .IntMap "year"}}/{{index .IntMap "month"}}/download-qbo-invoices"><button type="button" class="btn btn-info mt-2">
+                                Download QBO Invoices
+                            </button></a>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col">
