@@ -270,6 +270,7 @@ func (m *Repository) MileageLogCSV(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// convertMileageLogToCSVRaw takes a given mileage log and creates a csv of the log information
 func convertMileageLogToCSVRaw(log models.MileageLog) [][]string {
 	csvSlice := [][]string{{}}
 

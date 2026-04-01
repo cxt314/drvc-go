@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cxt314/drvc-go/internal/config"
 	"github.com/cxt314/drvc-go/internal/helpers"
 	"github.com/cxt314/drvc-go/internal/models"
 	"github.com/cxt314/drvc-go/internal/render"
@@ -113,7 +114,7 @@ func (m *Repository) getSummaryBillingDisplay(vehicleBills map[string]models.Mil
 		}
 
 		row["Total"] = memberTotal.String()
-		
+
 		// only append to display if member's bill is > 0
 		if memberTotal != 0 {
 			displayArray = append(displayArray, row)
@@ -221,6 +222,9 @@ func (m *Repository) calcTotalTripCost(log models.MileageLog) models.USD {
 	return totalCost
 }
 
+// calcPerMemberBillings takes a mileage log and a list of members
+// and returns a map of member id to a models.MemberMileageLogBilling
+// that splits LD trips from regular trips for that member
 func (m *Repository) calcPerMemberBillings(log models.MileageLog, members []models.Member) map[int]models.MemberMileageLogBilling {
 	memberBillings := make(map[int]models.MemberMileageLogBilling)
 
@@ -357,7 +361,7 @@ func (m *Repository) BillingCSV(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// QBOBulkInvoicesCSV generates a csv for download that uses Quickbooks Online's bulk import 
+// QBOBulkInvoicesCSV generates a csv for download that uses Quickbooks Online's bulk import
 // invoice via csv tool to quickly transfer a monthly billing to Quickbooks invoices
 // TODO: how do we add gas mileage that needs to be tacked on? this is happening manually atm
 func (m *Repository) QBOBulkInvoicesCSV(w http.ResponseWriter, r *http.Request) {
@@ -381,14 +385,19 @@ func (m *Repository) QBOBulkInvoicesCSV(w http.ResponseWriter, r *http.Request) 
 
 	// Set headers so browser will download the file
 	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=mileage-logs-%04d%02d.csv", year, month))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=qbo-bulk-invoices-%04d%02d.csv", year, month))
 	w.Header().Set("Transfer-Encoding", "chunked")
 
 	// Create a CSV writer using our HTTP response writer as our io.Writer
 	wr := csv.NewWriter(w)
 
+	// add header row
+	headerRow := m.getQBOInvoicesHeaderRow()
+	wr.Write(headerRow)
+
+	// get invoice lines for each mileage log
 	for _, l := range logs {
-		logCSV := convertMileageLogToCSVRaw(l)
+		logCSV := m.convertMileageLogToQBOInvoiceLineRaw(l)
 
 		if err := wr.WriteAll(logCSV); err != nil {
 			helpers.ServerError(w, err)
@@ -404,4 +413,101 @@ func (m *Repository) QBOBulkInvoicesCSV(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+}
+
+// getQBOInvoicesHeaderRow returns a csvSlice of the headers for QBO's bulk invoices
+func (m *Repository) getQBOInvoicesHeaderRow() []string {
+
+	headerRow := []string{"*InvoiceNo", "*Customer", "*InvoiceDate", "*DueDate", "Terms", "Location",
+		"Memo", "Item(Product/Service)", "ItemDescription", "ItemQuantity", "ItemRate",
+		"*ItemAmount", "Class", "Shipping address", "Ship via", "Shipping date",
+		"Tracking no.", "Shipping Charge", "Service Date"}
+
+	return headerRow
+}
+
+// convertMileageLogToQBOInvoiceLineRaw convers a mileage log to a csv string
+// containing QBO invoice line items for every member with a non-zero billing
+// for that log
+func (m *Repository) convertMileageLogToQBOInvoiceLineRaw(log models.MileageLog) [][]string {
+	csvSlice := [][]string{{}}
+
+	// get active members
+	members, err := m.DB.GetMemberByActive(true)
+	if err != nil {
+		return csvSlice
+	}
+
+	// get per member billings for the log
+	memberBillings := m.calcPerMemberBillings(log, members)
+
+	// create new lines for each member in the per member billing where either RegularTripsCost or LongDistanceTripsCost are non-zero
+	for k, v := range memberBillings {
+		// use QBOName for customer name, unless QBOName is empty
+		customer := v.Member.QBOName
+		if customer == "" {
+			customer = v.Member.Name
+		}
+
+		// calculate invoice date & due date
+		nextMonthFirstDay := time.Date(log.Year, time.Month(log.Month+1), 1, 0, 0, 0, 0, time.UTC)
+		invoiceDate := nextMonthFirstDay.AddDate(0, 0, -1)
+		dueDate := invoiceDate.AddDate(0, 0, 15)
+
+		// check if amount owed is > 0 for trips
+		if v.RegularTripsCost > 0 {
+			tripRow := []string{
+				strconv.Itoa(k),                       // *InvoiceNo - use key (member id)
+				customer,                              // *Customer - use QBOName if not empty, else member name
+				invoiceDate.Format(config.DateLayout), // *InvoiceDate - last date of Mileage Log's month
+				dueDate.Format(config.DateLayout),     // *DueDate - 15 days from InvoiceDate
+				"Net 15",                              // Terms
+				"",                                    // Location - blank
+				"",                                    // Memo - blank
+				"Mileage Fee",                         // Item(Product/Service)
+				log.Vehicle.Name,                      // ItemDescription - name of vehicle
+				"1",                                   // ItemQuantity
+				v.RegularTripsCost.String(),           // ItemRate
+				v.RegularTripsCost.String(),           // *ItemAmount
+				log.Vehicle.QBOClass,                  // Class
+				"",                                    // Shipping address
+				"",                                    // Ship via - blank
+				"",                                    // Shipping date - blank
+				"",                                    // Tracking no. - blank
+				"",                                    // Shipping Charge - blank
+				"",                                    // Service Date - blank
+			}
+
+			csvSlice = append(csvSlice, tripRow)
+		}
+
+		// check if amount owed is > = for ld
+		if v.LongDistanceTripsCost > 0 {
+			ldRow := []string{
+				strconv.Itoa(k),                       // *InvoiceNo - use key (member id)
+				customer,                              // *Customer - use QBOName if not empty, else member name
+				invoiceDate.Format(config.DateLayout), // *InvoiceDate - last date of Mileage Log's month
+				dueDate.Format(config.DateLayout),     // *DueDate - 15 days from InvoiceDate
+				"Net 15",                              // Terms
+				"",                                    // Location - blank
+				"",                                    // Memo - blank
+				"Long Distance",                       // Item(Product/Service)
+				log.Vehicle.Name,                      // ItemDescription - name of vehicle
+				"1",                                   // ItemQuantity
+				v.LongDistanceTripsCost.String(),      // ItemRate
+				v.LongDistanceTripsCost.String(),      // *ItemAmount
+				log.Vehicle.QBOClass,                  // Class
+				"",                                    // Shipping address
+				"",                                    // Ship via - blank
+				"",                                    // Shipping date - blank
+				"",                                    // Tracking no. - blank
+				"",                                    // Shipping Charge - blank
+				"",                                    // Service Date - blank
+			}
+
+			csvSlice = append(csvSlice, ldRow)
+		}
+	}
+
+	return csvSlice
 }
