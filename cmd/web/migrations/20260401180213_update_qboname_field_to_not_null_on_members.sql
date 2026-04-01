@@ -3,7 +3,7 @@
 
 -- Step 2: Populate the new column with data for existing rows
 -- Replace 'default_value' or a calculated value as needed
-UPDATE members SET qbo_name = '' WHERE qbo_class IS NULL;
+UPDATE members SET qbo_name = '' WHERE qbo_name IS NULL;
 
 -- Step 3: Alter the column to be NOT NULL (required)
 ALTER TABLE members ALTER COLUMN qbo_name SET NOT NULL;
