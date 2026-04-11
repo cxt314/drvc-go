@@ -449,6 +449,11 @@ func (m *Repository) convertMileageLogToQBOInvoiceLineRaw(log models.MileageLog)
 			customer = v.Member.Name
 		}
 
+		// skip the line if the customer is DRVC
+		if customer == "DRVC" {
+			continue
+		}
+
 		// calculate invoice date & due date
 		nextMonthFirstDay := time.Date(log.Year, time.Month(log.Month+1), 1, 0, 0, 0, 0, time.UTC)
 		invoiceDate := nextMonthFirstDay.AddDate(0, 0, -1)
